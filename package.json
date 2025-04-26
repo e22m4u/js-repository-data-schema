@@ -1,0 +1,68 @@
+{
+  "name": "@e22m4u/js-repository-data-schema",
+  "version": "0.0.1",
+  "description": "Извлечение схемы данных модели из схемы репозиториев",
+  "author": "e22m4u <e22m4u@yandex.ru>",
+  "license": "MIT",
+  "keywords": [
+    "js-repository",
+    "ts-data-schema"
+  ],
+  "homepage": "https://github.com/e22m4u/js-repository-data-schema",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/e22m4u/js-repository-data-schema"
+  },
+  "type": "module",
+  "types": "./dist/esm/index.d.ts",
+  "module": "./dist/esm/index.js",
+  "main": "./dist/cjs/index.cjs",
+  "exports": {
+    "types": "./dist/esm/index.d.ts",
+    "import": "./dist/esm/index.js",
+    "require": "./dist/cjs/index.cjs"
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "build:esm": "tsc --build",
+    "build:cjs": "rimraf ./dist/cjs && node --no-warnings=ExperimentalWarning build-cjs.js",
+    "build": "rimraf dist && npm run build:esm && npm run build:cjs",
+    "postbuild": "rimraf ./dist/**/*.spec.* --glob ./dist/tsconfig.tsbuildinfo",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
+    "format": "prettier --write \"./src/**/*.ts\"",
+    "test": "npm run lint && c8 --reporter=text-summary mocha --bail",
+    "test:coverage": "npm run lint && c8 --reporter=text mocha --bail",
+    "prepare": "husky"
+  },
+  "peerDependencies": {
+    "@e22m4u/ts-data-schema": "~0.1.1",
+    "@e22m4u/js-format": "~0.1.0",
+    "@e22m4u/js-repository": "~0.2.0",
+    "@e22m4u/js-service": "~0.2.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "~19.8.0",
+    "@commitlint/config-conventional": "~19.8.0",
+    "@eslint/js": "~9.25.1",
+    "@types/chai": "~5.2.1",
+    "@types/mocha": "~10.0.10",
+    "@types/node": "~22.14.1",
+    "c8": "~10.1.3",
+    "chai": "~5.2.0",
+    "esbuild": "~0.25.3",
+    "eslint": "~9.25.1",
+    "eslint-config-prettier": "~10.1.2",
+    "eslint-plugin-chai-expect": "~3.1.0",
+    "eslint-plugin-mocha": "~10.5.0",
+    "husky": "~9.1.7",
+    "mocha": "~11.1.0",
+    "prettier": "~3.5.3",
+    "rimraf": "~6.0.1",
+    "tsx": "~4.19.3",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "~8.31.0"
+  }
+}
