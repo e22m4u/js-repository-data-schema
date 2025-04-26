@@ -3,7 +3,7 @@
 Извлечение схемы данных модели из схемы репозиториев.
 
 Формат схемы [@e22m4u/ts-data-schema](https://www.npmjs.com/package/@e22m4u/ts-data-schema)  
-Спецификация модели [@e22m4u/js-repository](https://github.com/e22m4u/js-repository?tab=readme-ov-file#%D0%9C%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C)  
+Спецификация модели [@e22m4u/js-repository](https://www.npmjs.com/package/@e22m4u/js-repository#%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C)  
 
 ## Установка
 
