@@ -1,17 +1,11 @@
 # @e22m4u/js-repository-data-schema
 
-Модуль решает проблему конвертации
-[определения модели](https://www.npmjs.com/package/@e22m4u/js-repository#%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C)
-описывающей коллекцию базы данных в
-[схему данных](https://www.npmjs.com/package/@e22m4u/ts-data-schema),
-которая используется
-[REST-маршрутизатором](https://www.npmjs.com/package/@e22m4u/ts-rest-router)
-для обработки тела и параметров входящего запроса.
-
-#### Референс
+Модуль решает проблему конвертации *определения модели* описывающей коллекцию
+базы данных в *схему данных*, которая используется *REST-маршрутизатором* для
+обработки тела и параметров входящего запроса.
 
 Схема данных [@e22m4u/ts-data-schema](https://www.npmjs.com/package/@e22m4u/ts-data-schema)  
-Спецификация модели [@e22m4u/js-repository](https://www.npmjs.com/package/@e22m4u/js-repository#%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C)  
+Определение модели [@e22m4u/js-repository](https://www.npmjs.com/package/@e22m4u/js-repository#%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8C)  
 REST-маршрутизатор [@e22m4u/ts-rest-router](https://www.npmjs.com/package/@e22m4u/ts-rest-router)
 
 ## Установка
