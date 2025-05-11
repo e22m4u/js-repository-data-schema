@@ -1,11 +1,11 @@
 import {expect} from 'chai';
-import {Schema} from '@e22m4u/js-repository';
+import {RelationType, Schema} from '@e22m4u/js-repository';
 import {DataType} from '@e22m4u/ts-data-schema';
 import {DataType as RepDataType} from '@e22m4u/js-repository';
 import {getDataSchemaByModelName} from './get-data-schema-by-model-name.js';
 
 describe('getDataSchemaByModelName', function () {
-  it('uses short properties definition', function () {
+  it('sets properties from short definition', function () {
     const S = new Schema();
     S.defineModel({
       name: 'myModel',
@@ -32,7 +32,7 @@ describe('getDataSchemaByModelName', function () {
     });
   });
 
-  it('uses extended properties definition', function () {
+  it('sets properties from extended definition', function () {
     const S = new Schema();
     S.defineModel({
       name: 'myModel',
@@ -59,7 +59,7 @@ describe('getDataSchemaByModelName', function () {
     });
   });
 
-  it('uses base model hierarchy', function () {
+  it('sets properties from base model (uses hierarchy)', function () {
     const S = new Schema();
     S.defineModel({
       name: 'myModel1',
@@ -92,7 +92,7 @@ describe('getDataSchemaByModelName', function () {
     });
   });
 
-  it('uses "required" option', function () {
+  it('sets "required" option', function () {
     const S = new Schema();
     S.defineModel({
       name: 'myModel',
@@ -120,7 +120,7 @@ describe('getDataSchemaByModelName', function () {
   });
 
   describe('default values', function () {
-    it('uses "default" option', function () {
+    it('sets "default" option', function () {
       const S = new Schema();
       S.defineModel({
         name: 'myModel',
@@ -147,36 +147,37 @@ describe('getDataSchemaByModelName', function () {
       });
     });
 
-    it('extracts factory values', function () {
+    it('sets factory as is', function () {
       const S = new Schema();
+      const properties = {
+        foo: {type: RepDataType.STRING, default: () => 'str'},
+        bar: {type: RepDataType.NUMBER, default: () => 10},
+        baz: {type: RepDataType.BOOLEAN, default: () => true},
+        abc: {type: RepDataType.ARRAY, default: () => [1, 2, 3]},
+        def: {type: RepDataType.OBJECT, default: () => ({hello: 'world'})},
+        zxc: {type: RepDataType.ANY, default: () => null},
+      };
       S.defineModel({
         name: 'myModel',
-        properties: {
-          foo: {type: RepDataType.STRING, default: () => 'str'},
-          bar: {type: RepDataType.NUMBER, default: () => 10},
-          baz: {type: RepDataType.BOOLEAN, default: () => true},
-          abc: {type: RepDataType.ARRAY, default: () => [1, 2, 3]},
-          def: {type: RepDataType.OBJECT, default: () => ({hello: 'world'})},
-          zxc: {type: RepDataType.ANY, default: () => null},
-        },
+        properties,
       });
       const res = getDataSchemaByModelName(S, 'myModel');
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          foo: {type: DataType.STRING, default: 'str'},
-          bar: {type: DataType.NUMBER, default: 10},
-          baz: {type: DataType.BOOLEAN, default: true},
-          abc: {type: DataType.ARRAY, default: [1, 2, 3]},
-          def: {type: DataType.OBJECT, default: {hello: 'world'}},
-          zxc: {type: DataType.STRING, default: null},
+          foo: {type: DataType.STRING, default: properties.foo.default},
+          bar: {type: DataType.NUMBER, default: properties.bar.default},
+          baz: {type: DataType.BOOLEAN, default: properties.baz.default},
+          abc: {type: DataType.ARRAY, default: properties.abc.default},
+          def: {type: DataType.OBJECT, default: properties.def.default},
+          zxc: {type: DataType.STRING, default: properties.zxc.default},
         },
       });
     });
   });
 
   describe('Array', function () {
-    it('uses items schema', function () {
+    it('sets items schema', function () {
       const S = new Schema();
       S.defineModel({
         name: 'myModel',
@@ -199,7 +200,7 @@ describe('getDataSchemaByModelName', function () {
       });
     });
 
-    it('uses items model', function () {
+    it('sets items model schema', function () {
       const S = new Schema();
       S.defineModel({
         name: 'myModel1',
@@ -236,7 +237,7 @@ describe('getDataSchemaByModelName', function () {
       });
     });
 
-    it('uses nested arrays', function () {
+    it('sets nested arrays schema', function () {
       const S = new Schema();
       S.defineModel({
         name: 'myModel',
@@ -263,7 +264,7 @@ describe('getDataSchemaByModelName', function () {
   });
 
   describe('Object', function () {
-    it('uses nested objects', function () {
+    it('sets nested objects schema', function () {
       const S = new Schema();
       S.defineModel({
         name: 'myModel1',
@@ -306,6 +307,184 @@ describe('getDataSchemaByModelName', function () {
               },
             },
           },
+        },
+      });
+    });
+  });
+
+  describe('relations', function () {
+    it('sets BELONGS_TO relation fields', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'modelA',
+        relations: {
+          role: {
+            type: RelationType.BELONGS_TO,
+            model: 'modelB',
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'modelA');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          roleId: {type: DataType.STRING},
+        },
+      });
+    });
+
+    it('sets BELONGS_TO relation fields with specified "foreignKey" option', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'modelA',
+        relations: {
+          role: {
+            type: RelationType.BELONGS_TO,
+            model: 'modelB',
+            foreignKey: 'roleIdentifier',
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'modelA');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          roleIdentifier: {type: DataType.STRING},
+        },
+      });
+    });
+
+    it('sets REFERENCES_MANY relation fields', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'modelA',
+        relations: {
+          role: {
+            type: RelationType.REFERENCES_MANY,
+            model: 'modelB',
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'modelA');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          roleIds: {
+            type: DataType.ARRAY,
+            items: {type: DataType.STRING},
+          },
+        },
+      });
+    });
+
+    it('sets REFERENCES_MANY relation fields with specified "foreignKey" option', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'modelA',
+        relations: {
+          role: {
+            type: RelationType.REFERENCES_MANY,
+            model: 'modelB',
+            foreignKey: 'roleIdentifiers',
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'modelA');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          roleIdentifiers: {
+            type: DataType.ARRAY,
+            items: {type: DataType.STRING},
+          },
+        },
+      });
+    });
+
+    it('sets polymorphic BELONGS_TO relation fields', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'myModel',
+        relations: {
+          reference: {
+            type: RelationType.BELONGS_TO,
+            polymorphic: true,
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'myModel');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          referenceId: {type: DataType.STRING},
+          referenceType: {type: DataType.STRING},
+        },
+      });
+    });
+
+    it('sets polymorphic BELONGS_TO relation fields with specified "foreignKey" option', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'myModel',
+        relations: {
+          reference: {
+            type: RelationType.BELONGS_TO,
+            foreignKey: 'myReferenceId',
+            polymorphic: true,
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'myModel');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          myReferenceId: {type: DataType.STRING},
+          referenceType: {type: DataType.STRING},
+        },
+      });
+    });
+
+    it('sets polymorphic BELONGS_TO relation fields with specified "discriminator" option', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'myModel',
+        relations: {
+          reference: {
+            type: RelationType.BELONGS_TO,
+            discriminator: 'myReferenceType',
+            polymorphic: true,
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'myModel');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          referenceId: {type: DataType.STRING},
+          myReferenceType: {type: DataType.STRING},
+        },
+      });
+    });
+
+    it('sets polymorphic BELONGS_TO relation fields with specified "foreignKey" and "discriminator" options', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'myModel',
+        relations: {
+          reference: {
+            type: RelationType.BELONGS_TO,
+            foreignKey: 'myReferenceId',
+            discriminator: 'myReferenceType',
+            polymorphic: true,
+          },
+        },
+      });
+      const res = getDataSchemaByModelName(S, 'myModel');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          myReferenceId: {type: DataType.STRING},
+          myReferenceType: {type: DataType.STRING},
         },
       });
     });

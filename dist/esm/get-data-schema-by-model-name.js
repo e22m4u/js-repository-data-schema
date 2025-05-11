@@ -88,12 +88,8 @@ function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem 
     }
     if (typeof propDef === 'object' && propDef.required)
         res.required = true;
-    if (typeof propDef === 'object' && propDef.default !== undefined) {
-        res.default =
-            typeof propDef.default === 'function'
-                ? propDef.default()
-                : propDef.default;
-    }
+    if (typeof propDef === 'object' && propDef.default !== undefined)
+        res.default = propDef.default;
     return res;
 }
 /**
