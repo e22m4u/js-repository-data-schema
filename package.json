@@ -11,7 +11,7 @@
   "homepage": "https://github.com/e22m4u/js-repository-data-schema",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/e22m4u/js-repository-data-schema"
+    "url": "git+https://github.com/e22m4u/js-repository-data-schema.git"
   },
   "type": "module",
   "types": "./dist/esm/index.d.ts",
