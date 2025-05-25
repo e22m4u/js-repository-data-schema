@@ -22,6 +22,8 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   RepositoryDataSchema: () => RepositoryDataSchema,
+  getDataSchemaByModelClass: () => getDataSchemaByModelClass2,
+  getDataSchemaByModelName: () => getDataSchemaByModelName2,
   repositoryDataSchema: () => repositoryDataSchema
 });
 module.exports = __toCommonJS(index_exports);
@@ -53,7 +55,7 @@ function getDataSchemaPropertiesByModelName(repSchema, modelName) {
   const relsDef = repSchema.getService(import_js_repository2.ModelDefinitionUtils).getRelationsDefinitionInBaseModelHierarchy(modelName);
   Object.keys(relsDef).forEach((relName) => {
     const relDef = relsDef[relName];
-    const dsProps = convertRelationDefinitionToDataSchemaProperties(relName, relDef);
+    const dsProps = convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef);
     Object.keys(dsProps).forEach((propName) => {
       if (dsProps[propName])
         res[propName] = dsProps[propName];
@@ -63,7 +65,7 @@ function getDataSchemaPropertiesByModelName(repSchema, modelName) {
 }
 __name(getDataSchemaPropertiesByModelName, "getDataSchemaPropertiesByModelName");
 function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem = false) {
-  const res = { type: import_ts_data_schema.DataType.STRING };
+  const res = { type: import_ts_data_schema.DataType.ANY };
   let type;
   if (typeof propDef === "string") {
     type = propDef || import_js_repository3.DataType.ANY;
@@ -104,14 +106,21 @@ function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem 
   return res;
 }
 __name(convertPropertyDefinitionToDataSchema, "convertPropertyDefinitionToDataSchema");
-function convertRelationDefinitionToDataSchemaProperties(relName, relDef) {
+function convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef) {
   const res = {};
   switch (relDef.type) {
-    case import_js_repository.RelationType.BELONGS_TO:
+    case import_js_repository.RelationType.BELONGS_TO: {
+      const utils = repSchema.getService(import_js_repository2.ModelDefinitionUtils);
+      let foreignKeyDataType = import_ts_data_schema.DataType.ANY;
+      if ("model" in relDef && relDef.model) {
+        const targetModelName = relDef.model;
+        const targetPkPropName = utils.getPrimaryKeyAsPropertyName(targetModelName);
+        foreignKeyDataType = utils.getDataTypeByPropertyName(targetModelName, targetPkPropName);
+      }
       if (relDef.foreignKey) {
-        res[relDef.foreignKey] = { type: import_ts_data_schema.DataType.STRING };
+        res[relDef.foreignKey] = { type: foreignKeyDataType };
       } else {
-        res[`${relName}Id`] = { type: import_ts_data_schema.DataType.STRING };
+        res[`${relName}Id`] = { type: foreignKeyDataType };
       }
       if (relDef.polymorphic) {
         if (relDef.discriminator) {
@@ -121,23 +130,47 @@ function convertRelationDefinitionToDataSchemaProperties(relName, relDef) {
         }
       }
       break;
-    case import_js_repository.RelationType.REFERENCES_MANY:
+    }
+    case import_js_repository.RelationType.REFERENCES_MANY: {
+      const utils = repSchema.getService(import_js_repository2.ModelDefinitionUtils);
+      let foreignKeyDataType = import_ts_data_schema.DataType.ANY;
+      if ("model" in relDef && relDef.model) {
+        const targetModelName = relDef.model;
+        const targetPkPropName = utils.getPrimaryKeyAsPropertyName(targetModelName);
+        foreignKeyDataType = utils.getDataTypeByPropertyName(targetModelName, targetPkPropName);
+      }
       if (relDef.foreignKey) {
         res[relDef.foreignKey] = {
           type: import_ts_data_schema.DataType.ARRAY,
-          items: { type: import_ts_data_schema.DataType.STRING }
+          items: { type: foreignKeyDataType }
         };
       } else {
         res[`${relName}Ids`] = {
           type: import_ts_data_schema.DataType.ARRAY,
-          items: { type: import_ts_data_schema.DataType.STRING }
+          items: { type: foreignKeyDataType }
         };
       }
       break;
+    }
   }
   return res;
 }
 __name(convertRelationDefinitionToDataSchemaProperties, "convertRelationDefinitionToDataSchemaProperties");
+
+// dist/esm/get-data-schema-by-model-class.js
+var import_ts_projection = require("@e22m4u/ts-projection");
+var import_js_repository_decorators = require("@e22m4u/js-repository-decorators");
+function getDataSchemaByModelClass(repSchema, modelClass, projectionScope) {
+  const classMd = import_js_repository_decorators.ModelReflector.getMetadata(modelClass);
+  const modelName = (classMd == null ? void 0 : classMd.name) ?? modelClass.name;
+  let dataSchema = getDataSchemaByModelName(repSchema, modelName);
+  if (projectionScope) {
+    dataSchema = Object.assign({}, dataSchema);
+    dataSchema.properties = (0, import_ts_projection.applyProjection)(projectionScope, modelClass, dataSchema.properties);
+  }
+  return dataSchema;
+}
+__name(getDataSchemaByModelClass, "getDataSchemaByModelClass");
 
 // dist/esm/repository-data-schema.js
 var _RepositoryDataSchema = class _RepositoryDataSchema extends import_js_service.Service {
@@ -152,12 +185,28 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends import_js_servic
       throw new import_js_format.Errorf("A Schema instance must be registered in the RepositoryDataSchema service.");
     return getDataSchemaByModelName(this.getService(import_js_repository4.Schema), modelName);
   }
+  /**
+   * Get data schema by model class.
+   *
+   * @param modelClass
+   * @param projectionScope
+   */
+  getDataSchemaByModelClass(modelClass, projectionScope) {
+    const hasRepSchema = this.hasService(import_js_repository4.Schema);
+    if (!hasRepSchema)
+      throw new import_js_format.Errorf("A Schema instance must be registered in the RepositoryDataSchema service.");
+    return getDataSchemaByModelClass(this.getService(import_js_repository4.Schema), modelClass, projectionScope);
+  }
 };
 __name(_RepositoryDataSchema, "RepositoryDataSchema");
 var RepositoryDataSchema = _RepositoryDataSchema;
 var repositoryDataSchema = new RepositoryDataSchema();
+var getDataSchemaByModelName2 = repositoryDataSchema.getDataSchemaByModelName.bind(repositoryDataSchema);
+var getDataSchemaByModelClass2 = repositoryDataSchema.getDataSchemaByModelClass.bind(repositoryDataSchema);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   RepositoryDataSchema,
+  getDataSchemaByModelClass,
+  getDataSchemaByModelName,
   repositoryDataSchema
 });

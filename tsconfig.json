@@ -10,6 +10,8 @@
     "strict": true,
     "skipLibCheck": true,
     "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "resolveJsonModule": true,
     "incremental": false
   }

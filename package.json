@@ -38,10 +38,12 @@
     "prepare": "husky"
   },
   "peerDependencies": {
-    "@e22m4u/ts-data-schema": "~0.2.1",
     "@e22m4u/js-format": "~0.1.0",
     "@e22m4u/js-repository": "~0.2.0",
-    "@e22m4u/js-service": "~0.2.0"
+    "@e22m4u/js-repository-decorators": "~0.0.7",
+    "@e22m4u/js-service": "~0.2.0",
+    "@e22m4u/ts-data-schema": "~0.2.1",
+    "@e22m4u/ts-projection": "~0.0.2"
   },
   "devDependencies": {
     "@commitlint/cli": "~19.8.1",

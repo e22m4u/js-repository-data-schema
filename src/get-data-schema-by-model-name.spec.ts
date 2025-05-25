@@ -1,7 +1,10 @@
 import {expect} from 'chai';
-import {RelationType, Schema} from '@e22m4u/js-repository';
+import {
+  DataType as RepDataType,
+  RelationType,
+  Schema,
+} from '@e22m4u/js-repository';
 import {DataType} from '@e22m4u/ts-data-schema';
-import {DataType as RepDataType} from '@e22m4u/js-repository';
 import {getDataSchemaByModelName} from './get-data-schema-by-model-name.js';
 
 describe('getDataSchemaByModelName', function () {
@@ -27,7 +30,7 @@ describe('getDataSchemaByModelName', function () {
         baz: {type: DataType.BOOLEAN},
         abc: {type: DataType.ARRAY},
         def: {type: DataType.OBJECT},
-        zxc: {type: DataType.STRING},
+        zxc: {type: DataType.ANY},
       },
     });
   });
@@ -54,7 +57,7 @@ describe('getDataSchemaByModelName', function () {
         baz: {type: DataType.BOOLEAN},
         abc: {type: DataType.ARRAY},
         def: {type: DataType.OBJECT},
-        zxc: {type: DataType.STRING},
+        zxc: {type: DataType.ANY},
       },
     });
   });
@@ -62,7 +65,7 @@ describe('getDataSchemaByModelName', function () {
   it('sets properties from base model (uses hierarchy)', function () {
     const S = new Schema();
     S.defineModel({
-      name: 'myModel1',
+      name: 'myModelA',
       properties: {
         foo: RepDataType.STRING,
         bar: RepDataType.NUMBER,
@@ -70,15 +73,15 @@ describe('getDataSchemaByModelName', function () {
       },
     });
     S.defineModel({
-      base: 'myModel1',
-      name: 'myModel2',
+      base: 'myModelA',
+      name: 'myModelB',
       properties: {
         abc: RepDataType.ARRAY,
         def: RepDataType.OBJECT,
         zxc: RepDataType.ANY,
       },
     });
-    const res = getDataSchemaByModelName(S, 'myModel2');
+    const res = getDataSchemaByModelName(S, 'myModelB');
     expect(res).to.be.eql({
       type: DataType.OBJECT,
       properties: {
@@ -87,7 +90,7 @@ describe('getDataSchemaByModelName', function () {
         baz: {type: DataType.BOOLEAN},
         abc: {type: DataType.ARRAY},
         def: {type: DataType.OBJECT},
-        zxc: {type: DataType.STRING},
+        zxc: {type: DataType.ANY},
       },
     });
   });
@@ -114,7 +117,7 @@ describe('getDataSchemaByModelName', function () {
         baz: {type: DataType.BOOLEAN, required: true},
         abc: {type: DataType.ARRAY, required: true},
         def: {type: DataType.OBJECT, required: true},
-        zxc: {type: DataType.STRING, required: true},
+        zxc: {type: DataType.ANY, required: true},
       },
     });
   });
@@ -142,7 +145,7 @@ describe('getDataSchemaByModelName', function () {
           baz: {type: DataType.BOOLEAN, default: true},
           abc: {type: DataType.ARRAY, default: [1, 2, 3]},
           def: {type: DataType.OBJECT, default: {hello: 'world'}},
-          zxc: {type: DataType.STRING, default: null},
+          zxc: {type: DataType.ANY, default: null},
         },
       });
     });
@@ -170,7 +173,7 @@ describe('getDataSchemaByModelName', function () {
           baz: {type: DataType.BOOLEAN, default: properties.baz.default},
           abc: {type: DataType.ARRAY, default: properties.abc.default},
           def: {type: DataType.OBJECT, default: properties.def.default},
-          zxc: {type: DataType.STRING, default: properties.zxc.default},
+          zxc: {type: DataType.ANY, default: properties.zxc.default},
         },
       });
     });
@@ -203,22 +206,22 @@ describe('getDataSchemaByModelName', function () {
     it('sets items model schema', function () {
       const S = new Schema();
       S.defineModel({
-        name: 'myModel1',
+        name: 'myModelA',
         properties: {
           foo: {
             type: RepDataType.ARRAY,
             itemType: RepDataType.OBJECT,
-            itemModel: 'myModel2',
+            itemModel: 'myModelB',
           },
         },
       });
       S.defineModel({
-        name: 'myModel2',
+        name: 'myModelB',
         properties: {
           bar: DataType.STRING,
         },
       });
-      const res = getDataSchemaByModelName(S, 'myModel1');
+      const res = getDataSchemaByModelName(S, 'myModelA');
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -267,30 +270,30 @@ describe('getDataSchemaByModelName', function () {
     it('sets nested objects schema', function () {
       const S = new Schema();
       S.defineModel({
-        name: 'myModel1',
+        name: 'myModelA',
         properties: {
           foo: {
             type: RepDataType.OBJECT,
-            model: 'myModel2',
+            model: 'myModelB',
           },
         },
       });
       S.defineModel({
-        name: 'myModel2',
+        name: 'myModelB',
         properties: {
           bar: {
             type: RepDataType.OBJECT,
-            model: 'myModel3',
+            model: 'myModelC',
           },
         },
       });
       S.defineModel({
-        name: 'myModel3',
+        name: 'myModelC',
         properties: {
           baz: RepDataType.STRING,
         },
       });
-      const res = getDataSchemaByModelName(S, 'myModel1');
+      const res = getDataSchemaByModelName(S, 'myModelA');
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -318,17 +321,20 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'modelA',
         relations: {
-          role: {
+          rel: {
             type: RelationType.BELONGS_TO,
             model: 'modelB',
           },
         },
       });
+      S.defineModel({
+        name: 'modelB',
+      });
       const res = getDataSchemaByModelName(S, 'modelA');
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          roleId: {type: DataType.STRING},
+          relId: {type: DataType.ANY},
         },
       });
     });
@@ -338,10 +344,42 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'modelA',
         relations: {
-          role: {
+          rel: {
             type: RelationType.BELONGS_TO,
             model: 'modelB',
-            foreignKey: 'roleIdentifier',
+            foreignKey: 'customFk',
+          },
+        },
+      });
+      S.defineModel({
+        name: 'modelB',
+      });
+      const res = getDataSchemaByModelName(S, 'modelA');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          customFk: {type: DataType.ANY},
+        },
+      });
+    });
+
+    it('sets BELONGS_TO relation fields with custom DataType of foreign key', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'modelA',
+        relations: {
+          rel: {
+            type: RelationType.BELONGS_TO,
+            model: 'modelB',
+          },
+        },
+      });
+      S.defineModel({
+        name: 'modelB',
+        properties: {
+          id: {
+            type: DataType.STRING,
+            primaryKey: true,
           },
         },
       });
@@ -349,7 +387,7 @@ describe('getDataSchemaByModelName', function () {
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          roleIdentifier: {type: DataType.STRING},
+          relId: {type: DataType.STRING},
         },
       });
     });
@@ -359,19 +397,22 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'modelA',
         relations: {
-          role: {
+          rel: {
             type: RelationType.REFERENCES_MANY,
             model: 'modelB',
           },
         },
       });
+      S.defineModel({
+        name: 'modelB',
+      });
       const res = getDataSchemaByModelName(S, 'modelA');
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          roleIds: {
+          relIds: {
             type: DataType.ARRAY,
-            items: {type: DataType.STRING},
+            items: {type: DataType.ANY},
           },
         },
       });
@@ -382,10 +423,45 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'modelA',
         relations: {
-          role: {
+          rel: {
             type: RelationType.REFERENCES_MANY,
             model: 'modelB',
-            foreignKey: 'roleIdentifiers',
+            foreignKey: 'customFks',
+          },
+        },
+      });
+      S.defineModel({
+        name: 'modelB',
+      });
+      const res = getDataSchemaByModelName(S, 'modelA');
+      expect(res).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          customFks: {
+            type: DataType.ARRAY,
+            items: {type: DataType.ANY},
+          },
+        },
+      });
+    });
+
+    it('sets REFERENCES_MANY relation fields with custom DataType of foreign key', function () {
+      const S = new Schema();
+      S.defineModel({
+        name: 'modelA',
+        relations: {
+          rel: {
+            type: RelationType.REFERENCES_MANY,
+            model: 'modelB',
+          },
+        },
+      });
+      S.defineModel({
+        name: 'modelB',
+        properties: {
+          id: {
+            type: DataType.STRING,
+            primaryKey: true,
           },
         },
       });
@@ -393,7 +469,7 @@ describe('getDataSchemaByModelName', function () {
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          roleIdentifiers: {
+          relIds: {
             type: DataType.ARRAY,
             items: {type: DataType.STRING},
           },
@@ -406,7 +482,7 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'myModel',
         relations: {
-          reference: {
+          rel: {
             type: RelationType.BELONGS_TO,
             polymorphic: true,
           },
@@ -416,8 +492,8 @@ describe('getDataSchemaByModelName', function () {
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          referenceId: {type: DataType.STRING},
-          referenceType: {type: DataType.STRING},
+          relId: {type: DataType.ANY},
+          relType: {type: DataType.STRING},
         },
       });
     });
@@ -427,9 +503,9 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'myModel',
         relations: {
-          reference: {
+          rel: {
             type: RelationType.BELONGS_TO,
-            foreignKey: 'myReferenceId',
+            foreignKey: 'customFk',
             polymorphic: true,
           },
         },
@@ -438,8 +514,8 @@ describe('getDataSchemaByModelName', function () {
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          myReferenceId: {type: DataType.STRING},
-          referenceType: {type: DataType.STRING},
+          customFk: {type: DataType.ANY},
+          relType: {type: DataType.STRING},
         },
       });
     });
@@ -449,9 +525,9 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'myModel',
         relations: {
-          reference: {
+          rel: {
             type: RelationType.BELONGS_TO,
-            discriminator: 'myReferenceType',
+            discriminator: 'customDisc',
             polymorphic: true,
           },
         },
@@ -460,8 +536,8 @@ describe('getDataSchemaByModelName', function () {
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          referenceId: {type: DataType.STRING},
-          myReferenceType: {type: DataType.STRING},
+          relId: {type: DataType.ANY},
+          customDisc: {type: DataType.STRING},
         },
       });
     });
@@ -471,10 +547,10 @@ describe('getDataSchemaByModelName', function () {
       S.defineModel({
         name: 'myModel',
         relations: {
-          reference: {
+          rel: {
             type: RelationType.BELONGS_TO,
-            foreignKey: 'myReferenceId',
-            discriminator: 'myReferenceType',
+            foreignKey: 'customFk',
+            discriminator: 'customDisc',
             polymorphic: true,
           },
         },
@@ -483,8 +559,8 @@ describe('getDataSchemaByModelName', function () {
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
-          myReferenceId: {type: DataType.STRING},
-          myReferenceType: {type: DataType.STRING},
+          customFk: {type: DataType.ANY},
+          customDisc: {type: DataType.STRING},
         },
       });
     });

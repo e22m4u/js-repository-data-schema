@@ -34,7 +34,7 @@ function getDataSchemaPropertiesByModelName(repSchema, modelName) {
         .getRelationsDefinitionInBaseModelHierarchy(modelName);
     Object.keys(relsDef).forEach(relName => {
         const relDef = relsDef[relName];
-        const dsProps = convertRelationDefinitionToDataSchemaProperties(relName, relDef);
+        const dsProps = convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef);
         Object.keys(dsProps).forEach(propName => {
             if (dsProps[propName])
                 res[propName] = dsProps[propName];
@@ -50,7 +50,7 @@ function getDataSchemaPropertiesByModelName(repSchema, modelName) {
  * @param forArrayItem
  */
 function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem = false) {
-    const res = { type: DataType.STRING };
+    const res = { type: DataType.ANY };
     let type;
     if (typeof propDef === 'string') {
         type = propDef || RepDataType.ANY;
@@ -95,18 +95,26 @@ function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem 
 /**
  * Convert relation definition to data schema properties.
  *
+ * @param repSchema
  * @param relName
  * @param relDef
  */
-function convertRelationDefinitionToDataSchemaProperties(relName, relDef) {
+function convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef) {
     const res = {};
     switch (relDef.type) {
-        case RelationType.BELONGS_TO:
+        case RelationType.BELONGS_TO: {
+            const utils = repSchema.getService(ModelDefinitionUtils);
+            let foreignKeyDataType = DataType.ANY;
+            if ('model' in relDef && relDef.model) {
+                const targetModelName = relDef.model;
+                const targetPkPropName = utils.getPrimaryKeyAsPropertyName(targetModelName);
+                foreignKeyDataType = utils.getDataTypeByPropertyName(targetModelName, targetPkPropName);
+            }
             if (relDef.foreignKey) {
-                res[relDef.foreignKey] = { type: DataType.STRING };
+                res[relDef.foreignKey] = { type: foreignKeyDataType };
             }
             else {
-                res[`${relName}Id`] = { type: DataType.STRING };
+                res[`${relName}Id`] = { type: foreignKeyDataType };
             }
             if (relDef.polymorphic) {
                 if (relDef.discriminator) {
@@ -117,20 +125,29 @@ function convertRelationDefinitionToDataSchemaProperties(relName, relDef) {
                 }
             }
             break;
-        case RelationType.REFERENCES_MANY:
+        }
+        case RelationType.REFERENCES_MANY: {
+            const utils = repSchema.getService(ModelDefinitionUtils);
+            let foreignKeyDataType = DataType.ANY;
+            if ('model' in relDef && relDef.model) {
+                const targetModelName = relDef.model;
+                const targetPkPropName = utils.getPrimaryKeyAsPropertyName(targetModelName);
+                foreignKeyDataType = utils.getDataTypeByPropertyName(targetModelName, targetPkPropName);
+            }
             if (relDef.foreignKey) {
                 res[relDef.foreignKey] = {
                     type: DataType.ARRAY,
-                    items: { type: DataType.STRING },
+                    items: { type: foreignKeyDataType },
                 };
             }
             else {
                 res[`${relName}Ids`] = {
                     type: DataType.ARRAY,
-                    items: { type: DataType.STRING },
+                    items: { type: foreignKeyDataType },
                 };
             }
             break;
+        }
     }
     return res;
 }

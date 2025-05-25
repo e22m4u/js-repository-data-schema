@@ -16,16 +16,41 @@ npm install @e22m4u/js-repository-data-schema
 
 ## Использование
 
-Извлечение схемы данных модели `city` используя *глобальный экземпляр* сервиса.
+Модуль экспортирует класс `RepositoryDataSchema`, его глобальный экземпляр
+и методы, рассматриваемые ниже. Прежде чем использовать методы, требуется
+выполнить инъекцию схемы репозиториев в глобальный экземпляр сервиса
+как это показано ниже.
 
-```ts
+```js
 import {Schema} from '@e22m4u/js-repository';
-import {DataType} from '@e22m4u/ts-data-schema';
 import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
 
-// создание схемы репозиториев
-// и объявление модели "city"
 const schema = new Schema();
+repositoryDataSchema.setService(Schema, schema);
+```
+
+### getDataSchemaByModelName
+
+Извлечение схемы данных по названию модели.
+
+Определение:
+
+```ts
+declare const getDataSchemaByModelName: (modelName: string) => DataSchema;
+```
+
+Пример:
+
+```js
+import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
+import {getDataSchemaByModelName} from '@e22m4u/js-repository-data-schema';
+// peerDependencies
+import {Schema} from '@e22m4u/js-repository';
+import {DataType} from '@e22m4u/js-repository';
+
+const schema = new Schema();
+repositoryDataSchema.setService(Schema, schema);
+
 schema.defineModel({
   name: 'city',
   properties: {
@@ -37,13 +62,7 @@ schema.defineModel({
   },
 });
 
-// иньекция схемы репозиториев в глобальный сервис
-// (выполняется однократно)
-repositoryDataSchema.setService(Schema, schema);
-
-// извлечение схемы данных модели "city"
-// в формате @e22m4u/ts-data-schema
-const dataSchema = repositoryDataSchema.getDataSchemaByModelName('city');
+const dataSchema = getDataSchemaByModelName('city');
 console.log(dataSchema);
 // {
 //   type: 'object',
@@ -61,35 +80,47 @@ console.log(dataSchema);
 // },
 ```
 
-Извлечение схемы данных модели `city` используя *локальный экземпляр* сервиса.
+### getDataSchemaByModelClass
+
+Извлечение схемы данных из класса модели.
+
+Определение:
 
 ```ts
-import {Schema} from '@e22m4u/js-repository';
-import {DataType} from '@e22m4u/ts-data-schema';
-import {RepositoryDataSchema} from '@e22m4u/js-repository-data-schema';
+const getDataSchemaByModelClass: <T extends object>(
+  modelClass: Constructor<T>,
+  projectionScope?: ProjectionScope,
+) => DataSchema
+```
 
-// создание схемы репозиториев
-// и объявление модели "city"
+Базовый пример:
+
+```ts
+import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
+import {getDataSchemaByModelClass} from '@e22m4u/js-repository-data-schema';
+// peerDependencies
+import {model} from '@e22m4u/js-repository-decorators';
+import {property} from '@e22m4u/js-repository-decorators';
+import {getModelDefinitionFromClass} from '@e22m4u/js-repository-decorators';
+
 const schema = new Schema();
-schema.defineModel({
-  name: 'city',
-  properties: {
-    name: DataType.STRING,
-    codes: {
-      type: DataType.ARRAY,
-      itemType: DataType.NUMBER,
-    },
-  },
-});
-
-// создание экземпляра сервиса и иньекция
-// схемы репозиториев (выполняется однократно)
-const repositoryDataSchema = new RepositoryDataSchema();
 repositoryDataSchema.setService(Schema, schema);
 
-// извлечение схемы данных модели "city"
-// в формате @e22m4u/ts-data-schema
-const dataSchema = repositoryDataSchema.getDataSchemaByModelName('city');
+@model()
+class City {
+  @property(RepDataType.STRING)
+  name!: string;
+  
+  @property({
+    type: DataType.ARRAY,
+    itemType: DataType.NUMBER,
+  })
+  codes!: number[];
+}
+
+schema.defineModel(getModelDefinitionFromClass(City));
+
+const dataSchema = getDataSchemaByModelClass(City);
 console.log(dataSchema);
 // {
 //   type: 'object',
@@ -102,6 +133,67 @@ console.log(dataSchema);
 //       items: {
 //         type: 'number',
 //       },
+//     },
+//   },
+// },
+```
+
+Пример с использованием проекции:
+
+```ts
+import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
+import {getDataSchemaByModelClass} from '@e22m4u/js-repository-data-schema';
+// peerDependencies
+import {hiddenProperty} from '@e22m4u/ts-projection';
+import {lockedProperty} from '@e22m4u/ts-projection';
+import {ProjectionScope} from '@e22m4u/ts-projection';
+import {model} from '@e22m4u/js-repository-decorators';
+import {property} from '@e22m4u/js-repository-decorators';
+import {getModelDefinitionFromClass} from '@e22m4u/js-repository-decorators';
+
+const schema = new Schema();
+repositoryDataSchema.setService(Schema, schema);
+
+@model()
+class User {
+  @property(RepDataType.STRING)
+  name!: string;
+  
+  @lockedProperty() // исключается для INPUT
+  @property(RepDataType.STRING)
+  role!: string
+
+  @hiddenProperty() // исключается для OUTPUT
+  @property(RepDataType.STRING)
+  password!: string;
+}
+
+schema.defineModel(getModelDefinitionFromClass(User));
+
+const inputSchema = getDataSchemaByModelClass(User, ProjectionScope.INPUT);
+console.log(inputSchema);
+// {
+//   type: 'object',
+//   properties: {
+//     name: {
+//       type: 'string',
+//     },
+//     password: {
+//       type: 'string',
+//     },
+//   },
+// },
+
+const outputSchema = getDataSchemaByModelClass(User, ProjectionScope.OUTPUT);
+console.log(outputSchema);
+// {
+//   type: 'object',
+//   properties: {
+//     name: {
+//       type: 'string',
+//     },
+//     role: {
+//       type: 'string',
 //     },
 //   },
 // },
