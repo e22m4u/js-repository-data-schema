@@ -4,14 +4,14 @@ import { getDataSchemaByModelName } from './get-data-schema-by-model-name.js';
 /**
  * Get data schema by model class.
  *
- * @param repSchema
+ * @param dbSchema
  * @param modelClass
  * @param projectionScope
  */
-export function getDataSchemaByModelClass(repSchema, modelClass, projectionScope) {
+export function getDataSchemaByModelClass(dbSchema, modelClass, projectionScope) {
     const classMd = ModelReflector.getMetadata(modelClass);
     const modelName = classMd?.name ?? modelClass.name;
-    let dataSchema = getDataSchemaByModelName(repSchema, modelName);
+    let dataSchema = getDataSchemaByModelName(dbSchema, modelName);
     if (projectionScope) {
         dataSchema = Object.assign({}, dataSchema);
         dataSchema.properties = applyProjection(projectionScope, modelClass, dataSchema.properties);

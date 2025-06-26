@@ -38,24 +38,24 @@ var import_ts_data_schema = require("@e22m4u/ts-data-schema");
 var import_js_repository = require("@e22m4u/js-repository");
 var import_js_repository2 = require("@e22m4u/js-repository");
 var import_js_repository3 = require("@e22m4u/js-repository");
-function getDataSchemaByModelName(repSchema, modelName) {
+function getDataSchemaByModelName(dbSchema, modelName) {
   return {
     type: import_ts_data_schema.DataType.OBJECT,
-    properties: getDataSchemaPropertiesByModelName(repSchema, modelName)
+    properties: getDataSchemaPropertiesByModelName(dbSchema, modelName)
   };
 }
 __name(getDataSchemaByModelName, "getDataSchemaByModelName");
-function getDataSchemaPropertiesByModelName(repSchema, modelName) {
+function getDataSchemaPropertiesByModelName(dbSchema, modelName) {
   const res = {};
-  const propsDef = repSchema.getService(import_js_repository2.ModelDefinitionUtils).getPropertiesDefinitionInBaseModelHierarchy(modelName);
+  const propsDef = dbSchema.getService(import_js_repository2.ModelDefinitionUtils).getPropertiesDefinitionInBaseModelHierarchy(modelName);
   Object.keys(propsDef).forEach((propName) => {
     const propDef = propsDef[propName];
-    res[propName] = convertPropertyDefinitionToDataSchema(repSchema, propDef);
+    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
   });
-  const relsDef = repSchema.getService(import_js_repository2.ModelDefinitionUtils).getRelationsDefinitionInBaseModelHierarchy(modelName);
+  const relsDef = dbSchema.getService(import_js_repository2.ModelDefinitionUtils).getRelationsDefinitionInBaseModelHierarchy(modelName);
   Object.keys(relsDef).forEach((relName) => {
     const relDef = relsDef[relName];
-    const dsProps = convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef);
+    const dsProps = convertRelationDefinitionToDataSchemaProperties(dbSchema, relName, relDef);
     Object.keys(dsProps).forEach((propName) => {
       if (dsProps[propName])
         res[propName] = dsProps[propName];
@@ -64,7 +64,7 @@ function getDataSchemaPropertiesByModelName(repSchema, modelName) {
   return res;
 }
 __name(getDataSchemaPropertiesByModelName, "getDataSchemaPropertiesByModelName");
-function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem = false) {
+function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem = false) {
   const res = { type: import_ts_data_schema.DataType.ANY };
   let type;
   if (typeof propDef === "string") {
@@ -88,15 +88,15 @@ function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem 
       res.type = import_ts_data_schema.DataType.OBJECT;
       if (typeof propDef === "object") {
         if (!forArrayItem && propDef.model)
-          res.properties = getDataSchemaPropertiesByModelName(repSchema, propDef.model);
+          res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.model);
         else if (forArrayItem && propDef.itemModel)
-          res.properties = getDataSchemaPropertiesByModelName(repSchema, propDef.itemModel);
+          res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.itemModel);
       }
       break;
     case import_js_repository3.DataType.ARRAY:
       res.type = import_ts_data_schema.DataType.ARRAY;
       if (!forArrayItem && typeof propDef === "object" && propDef.itemType)
-        res.items = convertPropertyDefinitionToDataSchema(repSchema, propDef, true);
+        res.items = convertPropertyDefinitionToDataSchema(dbSchema, propDef, true);
       break;
   }
   if (typeof propDef === "object" && propDef.required)
@@ -106,11 +106,11 @@ function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem 
   return res;
 }
 __name(convertPropertyDefinitionToDataSchema, "convertPropertyDefinitionToDataSchema");
-function convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef) {
+function convertRelationDefinitionToDataSchemaProperties(dbSchema, relName, relDef) {
   const res = {};
   switch (relDef.type) {
     case import_js_repository.RelationType.BELONGS_TO: {
-      const utils = repSchema.getService(import_js_repository2.ModelDefinitionUtils);
+      const utils = dbSchema.getService(import_js_repository2.ModelDefinitionUtils);
       let foreignKeyDataType = import_ts_data_schema.DataType.ANY;
       if ("model" in relDef && relDef.model) {
         const targetModelName = relDef.model;
@@ -132,7 +132,7 @@ function convertRelationDefinitionToDataSchemaProperties(repSchema, relName, rel
       break;
     }
     case import_js_repository.RelationType.REFERENCES_MANY: {
-      const utils = repSchema.getService(import_js_repository2.ModelDefinitionUtils);
+      const utils = dbSchema.getService(import_js_repository2.ModelDefinitionUtils);
       let foreignKeyDataType = import_ts_data_schema.DataType.ANY;
       if ("model" in relDef && relDef.model) {
         const targetModelName = relDef.model;
@@ -160,10 +160,10 @@ __name(convertRelationDefinitionToDataSchemaProperties, "convertRelationDefiniti
 // dist/esm/get-data-schema-by-model-class.js
 var import_ts_projection = require("@e22m4u/ts-projection");
 var import_js_repository_decorators = require("@e22m4u/js-repository-decorators");
-function getDataSchemaByModelClass(repSchema, modelClass, projectionScope) {
+function getDataSchemaByModelClass(dbSchema, modelClass, projectionScope) {
   const classMd = import_js_repository_decorators.ModelReflector.getMetadata(modelClass);
   const modelName = (classMd == null ? void 0 : classMd.name) ?? modelClass.name;
-  let dataSchema = getDataSchemaByModelName(repSchema, modelName);
+  let dataSchema = getDataSchemaByModelName(dbSchema, modelName);
   if (projectionScope) {
     dataSchema = Object.assign({}, dataSchema);
     dataSchema.properties = (0, import_ts_projection.applyProjection)(projectionScope, modelClass, dataSchema.properties);
@@ -180,10 +180,10 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends import_js_servic
    * @param modelName
    */
   getDataSchemaByModelName(modelName) {
-    const hasRepSchema = this.hasService(import_js_repository4.Schema);
+    const hasRepSchema = this.hasService(import_js_repository4.DatabaseSchema);
     if (!hasRepSchema)
-      throw new import_js_format.Errorf("A Schema instance must be registered in the RepositoryDataSchema service.");
-    return getDataSchemaByModelName(this.getService(import_js_repository4.Schema), modelName);
+      throw new import_js_format.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
+    return getDataSchemaByModelName(this.getService(import_js_repository4.DatabaseSchema), modelName);
   }
   /**
    * Get data schema by model class.
@@ -192,10 +192,10 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends import_js_servic
    * @param projectionScope
    */
   getDataSchemaByModelClass(modelClass, projectionScope) {
-    const hasRepSchema = this.hasService(import_js_repository4.Schema);
+    const hasRepSchema = this.hasService(import_js_repository4.DatabaseSchema);
     if (!hasRepSchema)
-      throw new import_js_format.Errorf("A Schema instance must be registered in the RepositoryDataSchema service.");
-    return getDataSchemaByModelClass(this.getService(import_js_repository4.Schema), modelClass, projectionScope);
+      throw new import_js_format.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
+    return getDataSchemaByModelClass(this.getService(import_js_repository4.DatabaseSchema), modelClass, projectionScope);
   }
 };
 __name(_RepositoryDataSchema, "RepositoryDataSchema");

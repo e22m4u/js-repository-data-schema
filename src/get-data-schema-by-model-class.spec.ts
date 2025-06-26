@@ -1,7 +1,7 @@
 import {expect} from 'chai';
-import {Schema} from '@e22m4u/js-repository';
 import {DataType} from '@e22m4u/ts-data-schema';
 import {RelationType} from '@e22m4u/js-repository';
+import {DatabaseSchema} from '@e22m4u/js-repository';
 import {hiddenProperty} from '@e22m4u/ts-projection';
 import {lockedProperty} from '@e22m4u/ts-projection';
 import {ProjectionScope} from '@e22m4u/ts-projection';
@@ -31,9 +31,9 @@ describe('getDataSchemaByModeClass', function () {
       @property(RepDataType.ANY)
       zxc?: unknown;
     }
-    const S = new Schema();
-    S.defineModel(getModelDefinitionFromClass(MyModel));
-    const res = getDataSchemaByModelClass(S, MyModel);
+    const dbs = new DatabaseSchema();
+    dbs.defineModel(getModelDefinitionFromClass(MyModel));
+    const res = getDataSchemaByModelClass(dbs, MyModel);
     expect(res).to.be.eql({
       type: DataType.OBJECT,
       properties: {
@@ -63,9 +63,9 @@ describe('getDataSchemaByModeClass', function () {
       @property({type: RepDataType.ANY})
       zxc?: unknown;
     }
-    const S = new Schema();
-    S.defineModel(getModelDefinitionFromClass(MyModel));
-    const res = getDataSchemaByModelClass(S, MyModel);
+    const dbs = new DatabaseSchema();
+    dbs.defineModel(getModelDefinitionFromClass(MyModel));
+    const res = getDataSchemaByModelClass(dbs, MyModel);
     expect(res).to.be.eql({
       type: DataType.OBJECT,
       properties: {
@@ -98,10 +98,10 @@ describe('getDataSchemaByModeClass', function () {
       @property({type: RepDataType.ANY})
       zxc?: unknown;
     }
-    const S = new Schema();
-    S.defineModel(getModelDefinitionFromClass(MyModelA));
-    S.defineModel(getModelDefinitionFromClass(MyModelB));
-    const res = getDataSchemaByModelClass(S, MyModelB);
+    const dbs = new DatabaseSchema();
+    dbs.defineModel(getModelDefinitionFromClass(MyModelA));
+    dbs.defineModel(getModelDefinitionFromClass(MyModelB));
+    const res = getDataSchemaByModelClass(dbs, MyModelB);
     expect(res).to.be.eql({
       type: DataType.OBJECT,
       properties: {
@@ -149,9 +149,9 @@ describe('getDataSchemaByModeClass', function () {
       })
       zxc?: unknown;
     }
-    const S = new Schema();
-    S.defineModel(getModelDefinitionFromClass(MyModel));
-    const res = getDataSchemaByModelClass(S, MyModel);
+    const dbs = new DatabaseSchema();
+    dbs.defineModel(getModelDefinitionFromClass(MyModel));
+    const res = getDataSchemaByModelClass(dbs, MyModel);
     expect(res).to.be.eql({
       type: DataType.OBJECT,
       properties: {
@@ -171,9 +171,9 @@ describe('getDataSchemaByModeClass', function () {
       @property(RepDataType.STRING)
       foo?: string;
     }
-    const S = new Schema();
-    S.defineModel(getModelDefinitionFromClass(MyModel));
-    const res = getDataSchemaByModelClass(S, MyModel);
+    const dbs = new DatabaseSchema();
+    dbs.defineModel(getModelDefinitionFromClass(MyModel));
+    const res = getDataSchemaByModelClass(dbs, MyModel);
     expect(res).to.be.eql({
       type: DataType.OBJECT,
       properties: {
@@ -219,9 +219,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         zxc?: unknown;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -275,9 +275,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         zxc?: unknown;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -302,9 +302,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         foo?: string[];
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -331,10 +331,10 @@ describe('getDataSchemaByModeClass', function () {
         })
         foo?: myModelA[];
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(myModelA));
-      S.defineModel(getModelDefinitionFromClass(myModelB));
-      const res = getDataSchemaByModelClass(S, myModelB);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(myModelA));
+      dbs.defineModel(getModelDefinitionFromClass(myModelB));
+      const res = getDataSchemaByModelClass(dbs, myModelB);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -362,9 +362,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         foo?: unknown[][];
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -402,11 +402,11 @@ describe('getDataSchemaByModeClass', function () {
         })
         foo?: myModelB;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(myModelA));
-      S.defineModel(getModelDefinitionFromClass(myModelB));
-      S.defineModel(getModelDefinitionFromClass(myModelC));
-      const res = getDataSchemaByModelClass(S, myModelC);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(myModelA));
+      dbs.defineModel(getModelDefinitionFromClass(myModelB));
+      dbs.defineModel(getModelDefinitionFromClass(myModelC));
+      const res = getDataSchemaByModelClass(dbs, myModelC);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -440,10 +440,10 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: MyModelA;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModelA));
-      S.defineModel(getModelDefinitionFromClass(MyModelB));
-      const res = getDataSchemaByModelClass(S, MyModelB);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModelA));
+      dbs.defineModel(getModelDefinitionFromClass(MyModelB));
+      const res = getDataSchemaByModelClass(dbs, MyModelB);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -464,10 +464,10 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: MyModelA;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModelA));
-      S.defineModel(getModelDefinitionFromClass(MyModelB));
-      const res = getDataSchemaByModelClass(S, MyModelB);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModelA));
+      dbs.defineModel(getModelDefinitionFromClass(MyModelB));
+      const res = getDataSchemaByModelClass(dbs, MyModelB);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -493,10 +493,10 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: MyModelA;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModelA));
-      S.defineModel(getModelDefinitionFromClass(MyModelB));
-      const res = getDataSchemaByModelClass(S, MyModelB);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModelA));
+      dbs.defineModel(getModelDefinitionFromClass(MyModelB));
+      const res = getDataSchemaByModelClass(dbs, MyModelB);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -516,10 +516,10 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: MyModelA[];
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModelA));
-      S.defineModel(getModelDefinitionFromClass(MyModelB));
-      const res = getDataSchemaByModelClass(S, MyModelB);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModelA));
+      dbs.defineModel(getModelDefinitionFromClass(MyModelB));
+      const res = getDataSchemaByModelClass(dbs, MyModelB);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -543,10 +543,10 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: MyModelA[];
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModelA));
-      S.defineModel(getModelDefinitionFromClass(MyModelB));
-      const res = getDataSchemaByModelClass(S, MyModelB);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModelA));
+      dbs.defineModel(getModelDefinitionFromClass(MyModelB));
+      const res = getDataSchemaByModelClass(dbs, MyModelB);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -575,10 +575,10 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: MyModelA[];
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModelA));
-      S.defineModel(getModelDefinitionFromClass(MyModelB));
-      const res = getDataSchemaByModelClass(S, MyModelB);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModelA));
+      dbs.defineModel(getModelDefinitionFromClass(MyModelB));
+      const res = getDataSchemaByModelClass(dbs, MyModelB);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -599,9 +599,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: object;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -621,9 +621,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: object;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -643,9 +643,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: object;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -666,9 +666,9 @@ describe('getDataSchemaByModeClass', function () {
         })
         rel?: object;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -696,9 +696,9 @@ describe('getDataSchemaByModeClass', function () {
         @property(RepDataType.STRING)
         abc?: string;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(dbs, MyModel);
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -720,9 +720,13 @@ describe('getDataSchemaByModeClass', function () {
         @property(RepDataType.NUMBER)
         bar?: number;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel, ProjectionScope.INPUT);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(
+        dbs,
+        MyModel,
+        ProjectionScope.INPUT,
+      );
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {
@@ -741,9 +745,13 @@ describe('getDataSchemaByModeClass', function () {
         @property(RepDataType.NUMBER)
         bar?: number;
       }
-      const S = new Schema();
-      S.defineModel(getModelDefinitionFromClass(MyModel));
-      const res = getDataSchemaByModelClass(S, MyModel, ProjectionScope.OUTPUT);
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res = getDataSchemaByModelClass(
+        dbs,
+        MyModel,
+        ProjectionScope.OUTPUT,
+      );
       expect(res).to.be.eql({
         type: DataType.OBJECT,
         properties: {

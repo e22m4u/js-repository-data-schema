@@ -5,36 +5,36 @@ import { DataType as RepDataType } from '@e22m4u/js-repository';
 /**
  * Get data schema by model name.
  *
- * @param repSchema
+ * @param dbSchema
  * @param modelName
  */
-export function getDataSchemaByModelName(repSchema, modelName) {
+export function getDataSchemaByModelName(dbSchema, modelName) {
     return {
         type: DataType.OBJECT,
-        properties: getDataSchemaPropertiesByModelName(repSchema, modelName),
+        properties: getDataSchemaPropertiesByModelName(dbSchema, modelName),
     };
 }
 /**
  * Get data schema properties by model name.
  *
- * @param repSchema
+ * @param dbSchema
  * @param modelName
  */
-function getDataSchemaPropertiesByModelName(repSchema, modelName) {
+function getDataSchemaPropertiesByModelName(dbSchema, modelName) {
     const res = {};
-    const propsDef = repSchema
+    const propsDef = dbSchema
         .getService(ModelDefinitionUtils)
         .getPropertiesDefinitionInBaseModelHierarchy(modelName);
     Object.keys(propsDef).forEach(propName => {
         const propDef = propsDef[propName];
-        res[propName] = convertPropertyDefinitionToDataSchema(repSchema, propDef);
+        res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
     });
-    const relsDef = repSchema
+    const relsDef = dbSchema
         .getService(ModelDefinitionUtils)
         .getRelationsDefinitionInBaseModelHierarchy(modelName);
     Object.keys(relsDef).forEach(relName => {
         const relDef = relsDef[relName];
-        const dsProps = convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef);
+        const dsProps = convertRelationDefinitionToDataSchemaProperties(dbSchema, relName, relDef);
         Object.keys(dsProps).forEach(propName => {
             if (dsProps[propName])
                 res[propName] = dsProps[propName];
@@ -45,11 +45,11 @@ function getDataSchemaPropertiesByModelName(repSchema, modelName) {
 /**
  * Convert property definition to data schema.
  *
- * @param repSchema
+ * @param dbSchema
  * @param propDef
  * @param forArrayItem
  */
-function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem = false) {
+function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem = false) {
     const res = { type: DataType.ANY };
     let type;
     if (typeof propDef === 'string') {
@@ -75,15 +75,15 @@ function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem 
             res.type = DataType.OBJECT;
             if (typeof propDef === 'object') {
                 if (!forArrayItem && propDef.model)
-                    res.properties = getDataSchemaPropertiesByModelName(repSchema, propDef.model);
+                    res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.model);
                 else if (forArrayItem && propDef.itemModel)
-                    res.properties = getDataSchemaPropertiesByModelName(repSchema, propDef.itemModel);
+                    res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.itemModel);
             }
             break;
         case RepDataType.ARRAY:
             res.type = DataType.ARRAY;
             if (!forArrayItem && typeof propDef === 'object' && propDef.itemType)
-                res.items = convertPropertyDefinitionToDataSchema(repSchema, propDef, true);
+                res.items = convertPropertyDefinitionToDataSchema(dbSchema, propDef, true);
             break;
     }
     if (typeof propDef === 'object' && propDef.required)
@@ -95,15 +95,15 @@ function convertPropertyDefinitionToDataSchema(repSchema, propDef, forArrayItem 
 /**
  * Convert relation definition to data schema properties.
  *
- * @param repSchema
+ * @param dbSchema
  * @param relName
  * @param relDef
  */
-function convertRelationDefinitionToDataSchemaProperties(repSchema, relName, relDef) {
+function convertRelationDefinitionToDataSchemaProperties(dbSchema, relName, relDef) {
     const res = {};
     switch (relDef.type) {
         case RelationType.BELONGS_TO: {
-            const utils = repSchema.getService(ModelDefinitionUtils);
+            const utils = dbSchema.getService(ModelDefinitionUtils);
             let foreignKeyDataType = DataType.ANY;
             if ('model' in relDef && relDef.model) {
                 const targetModelName = relDef.model;
@@ -127,7 +127,7 @@ function convertRelationDefinitionToDataSchemaProperties(repSchema, relName, rel
             break;
         }
         case RelationType.REFERENCES_MANY: {
-            const utils = repSchema.getService(ModelDefinitionUtils);
+            const utils = dbSchema.getService(ModelDefinitionUtils);
             let foreignKeyDataType = DataType.ANY;
             if ('model' in relDef && relDef.model) {
                 const targetModelName = relDef.model;

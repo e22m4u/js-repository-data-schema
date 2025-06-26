@@ -1,8 +1,8 @@
 import {Errorf} from '@e22m4u/js-format';
 import {Service} from '@e22m4u/js-service';
-import {Schema} from '@e22m4u/js-repository';
 import {Constructor} from '@e22m4u/js-repository';
 import {DataSchema} from '@e22m4u/ts-data-schema';
+import {DatabaseSchema} from '@e22m4u/js-repository';
 import {ProjectionScope} from '@e22m4u/ts-projection';
 import {getDataSchemaByModelName as baseGetDataSchemaByModelName} from './get-data-schema-by-model-name.js';
 import {getDataSchemaByModelClass as baseGetDataSchemaByModelClass} from './get-data-schema-by-model-class.js';
@@ -17,13 +17,16 @@ export class RepositoryDataSchema extends Service {
    * @param modelName
    */
   getDataSchemaByModelName(modelName: string): DataSchema {
-    const hasRepSchema = this.hasService(Schema);
+    const hasRepSchema = this.hasService(DatabaseSchema);
     if (!hasRepSchema)
       throw new Errorf(
-        'A Schema instance must be registered ' +
+        'A DatabaseSchema instance must be registered ' +
           'in the RepositoryDataSchema service.',
       );
-    return baseGetDataSchemaByModelName(this.getService(Schema), modelName);
+    return baseGetDataSchemaByModelName(
+      this.getService(DatabaseSchema),
+      modelName,
+    );
   }
 
   /**
@@ -36,14 +39,14 @@ export class RepositoryDataSchema extends Service {
     modelClass: Constructor<T>,
     projectionScope?: ProjectionScope,
   ) {
-    const hasRepSchema = this.hasService(Schema);
+    const hasRepSchema = this.hasService(DatabaseSchema);
     if (!hasRepSchema)
       throw new Errorf(
-        'A Schema instance must be registered ' +
+        'A DatabaseSchema instance must be registered ' +
           'in the RepositoryDataSchema service.',
       );
     return baseGetDataSchemaByModelClass(
-      this.getService(Schema),
+      this.getService(DatabaseSchema),
       modelClass,
       projectionScope,
     );
