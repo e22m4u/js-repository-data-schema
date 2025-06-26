@@ -177,8 +177,8 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends import_js_servic
    * @param modelName
    */
   getDataSchemaByModelName(modelName) {
-    const hasRepSchema = this.hasService(import_js_repository4.DatabaseSchema);
-    if (!hasRepSchema)
+    const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
+    if (!hasDbSchema)
       throw new import_js_format.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
     return getDataSchemaByModelName(this.getService(import_js_repository4.DatabaseSchema), modelName);
   }
@@ -189,8 +189,8 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends import_js_servic
    * @param projectionScope
    */
   getDataSchemaByModelClass(modelClass, projectionScope) {
-    const hasRepSchema = this.hasService(import_js_repository4.DatabaseSchema);
-    if (!hasRepSchema)
+    const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
+    if (!hasDbSchema)
       throw new import_js_format.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
     return getDataSchemaByModelClass(this.getService(import_js_repository4.DatabaseSchema), modelClass, projectionScope);
   }
