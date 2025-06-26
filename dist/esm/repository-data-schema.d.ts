@@ -20,15 +20,3 @@ export declare class RepositoryDataSchema extends Service {
      */
     getDataSchemaByModelClass<T extends object>(modelClass: Constructor<T>, projectionScope?: ProjectionScope): DataSchema;
 }
-/**
- * Global instance of RepositoryDataService.
- */
-export declare const repositoryDataSchema: RepositoryDataSchema;
-/**
- * Global instance method getDataSchemaByModelName.
- */
-export declare const getDataSchemaByModelName: (modelName: string) => DataSchema;
-/**
- * Global instance method getDataSchemaByModelClass.
- */
-export declare const getDataSchemaByModelClass: <T extends object>(modelClass: Constructor<T>, projectionScope?: ProjectionScope) => DataSchema;

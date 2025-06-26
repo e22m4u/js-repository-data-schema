@@ -1,8 +1,8 @@
 import { Errorf } from '@e22m4u/js-format';
 import { Service } from '@e22m4u/js-service';
 import { DatabaseSchema } from '@e22m4u/js-repository';
-import { getDataSchemaByModelName as baseGetDataSchemaByModelName } from './get-data-schema-by-model-name.js';
-import { getDataSchemaByModelClass as baseGetDataSchemaByModelClass } from './get-data-schema-by-model-class.js';
+import { getDataSchemaByModelName } from './get-data-schema-by-model-name.js';
+import { getDataSchemaByModelClass } from './get-data-schema-by-model-class.js';
 /**
  * Repository data schema utils.
  */
@@ -17,7 +17,7 @@ export class RepositoryDataSchema extends Service {
         if (!hasRepSchema)
             throw new Errorf('A DatabaseSchema instance must be registered ' +
                 'in the RepositoryDataSchema service.');
-        return baseGetDataSchemaByModelName(this.getService(DatabaseSchema), modelName);
+        return getDataSchemaByModelName(this.getService(DatabaseSchema), modelName);
     }
     /**
      * Get data schema by model class.
@@ -30,18 +30,6 @@ export class RepositoryDataSchema extends Service {
         if (!hasRepSchema)
             throw new Errorf('A DatabaseSchema instance must be registered ' +
                 'in the RepositoryDataSchema service.');
-        return baseGetDataSchemaByModelClass(this.getService(DatabaseSchema), modelClass, projectionScope);
+        return getDataSchemaByModelClass(this.getService(DatabaseSchema), modelClass, projectionScope);
     }
 }
-/**
- * Global instance of RepositoryDataService.
- */
-export const repositoryDataSchema = new RepositoryDataSchema();
-/**
- * Global instance method getDataSchemaByModelName.
- */
-export const getDataSchemaByModelName = repositoryDataSchema.getDataSchemaByModelName.bind(repositoryDataSchema);
-/**
- * Global instance method getDataSchemaByModelClass.
- */
-export const getDataSchemaByModelClass = repositoryDataSchema.getDataSchemaByModelClass.bind(repositoryDataSchema);

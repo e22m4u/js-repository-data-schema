@@ -16,17 +16,18 @@ npm install @e22m4u/js-repository-data-schema
 
 ## Использование
 
-Модуль экспортирует класс `RepositoryDataSchema`, его глобальный экземпляр
-и методы, рассматриваемые ниже. Прежде чем использовать методы, требуется
-выполнить инъекцию экземпляра `DatabaseSchema` в глобальный экземпляр
-сервиса как это показано ниже.
+Модуль экспортирует класс `RepositoryDataSchema` с методами для извлечения
+*схемы данных* определенной модели. Прежде чем использовать методы, требуется
+создать новый экземпляр данного класса и выполнить инъекцию вашего экземпляра
+`DatabaseSchema`.
 
 ```js
 import {DatabaseSchema} from '@e22m4u/js-repository';
-import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
+import {RepositoryDataSchema} from '@e22m4u/js-repository-data-schema';
 
 const dbs = new DatabaseSchema();
-repositoryDataSchema.setService(DatabaseSchema, dbs);
+const rds = new RepositoryDataSchema();
+rds.setService(DatabaseSchema, dbs);
 ```
 
 ### getDataSchemaByModelName
@@ -42,14 +43,13 @@ declare const getDataSchemaByModelName: (modelName: string) => DataSchema;
 Пример:
 
 ```js
-import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
-import {getDataSchemaByModelName} from '@e22m4u/js-repository-data-schema';
-// peerDependencies
 import {DataType} from '@e22m4u/js-repository';
 import {DatabaseSchema} from '@e22m4u/js-repository';
+import {RepositoryDataSchema} from '@e22m4u/js-repository-data-schema';
 
 const dbs = new DatabaseSchema();
-repositoryDataSchema.setService(DatabaseSchema, dbs);
+const rds = new RepositoryDataSchema();
+rds.setService(DatabaseSchema, dbs);
 
 dbs.defineModel({
   name: 'city',
@@ -62,7 +62,7 @@ dbs.defineModel({
   },
 });
 
-const schema = getDataSchemaByModelName('city');
+const schema = rds.getDataSchemaByModelName('city');
 console.log(schema);
 // {
 //   type: 'object',
@@ -96,15 +96,13 @@ const getDataSchemaByModelClass: <T extends object>(
 Базовый пример:
 
 ```ts
-import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
-import {getDataSchemaByModelClass} from '@e22m4u/js-repository-data-schema';
-// peerDependencies
-import {model} from '@e22m4u/js-repository-decorators';
-import {property} from '@e22m4u/js-repository-decorators';
-import {getModelDefinitionFromClass} from '@e22m4u/js-repository-decorators';
+import {DataType} from '@e22m4u/js-repository';
+import {DatabaseSchema} from '@e22m4u/js-repository';
+import {RepositoryDataSchema} from '@e22m4u/js-repository-data-schema';
 
 const dbs = new DatabaseSchema();
-repositoryDataSchema.setService(DatabaseSchema, dbs);
+const rds = new RepositoryDataSchema();
+rds.setService(DatabaseSchema, dbs);
 
 @model()
 class City {
@@ -120,7 +118,7 @@ class City {
 
 dbs.defineModel(getModelDefinitionFromClass(City));
 
-const schema = getDataSchemaByModelClass(City);
+const schema = rds.getDataSchemaByModelClass(City);
 console.log(schema);
 // {
 //   type: 'object',
@@ -141,36 +139,37 @@ console.log(schema);
 Пример с использованием проекции:
 
 ```ts
-import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
-import {getDataSchemaByModelClass} from '@e22m4u/js-repository-data-schema';
-// peerDependencies
+import {DataType} from '@e22m4u/js-repository';
+import {DatabaseSchema} from '@e22m4u/js-repository';
 import {hiddenProperty} from '@e22m4u/ts-projection';
 import {lockedProperty} from '@e22m4u/ts-projection';
 import {ProjectionScope} from '@e22m4u/ts-projection';
 import {model} from '@e22m4u/js-repository-decorators';
 import {property} from '@e22m4u/js-repository-decorators';
+import {RepositoryDataSchema} from '@e22m4u/js-repository-data-schema';
 import {getModelDefinitionFromClass} from '@e22m4u/js-repository-decorators';
 
 const dbs = new DatabaseSchema();
-repositoryDataSchema.setService(DatabaseSchema, dbs);
+const rds = new RepositoryDataSchema();
+rds.setService(DatabaseSchema, dbs);
 
 @model()
 class User {
-  @property(RepDataType.STRING)
+  @property(DataType.STRING)
   name!: string;
   
   @lockedProperty() // исключается для INPUT
-  @property(RepDataType.STRING)
+  @property(DataType.STRING)
   role!: string
 
   @hiddenProperty() // исключается для OUTPUT
-  @property(RepDataType.STRING)
+  @property(DataType.STRING)
   password!: string;
 }
 
 dbs.defineModel(getModelDefinitionFromClass(User));
 
-const inputSchema = getDataSchemaByModelClass(User, ProjectionScope.INPUT);
+const inputSchema = rds.getDataSchemaByModelClass(User, ProjectionScope.INPUT);
 console.log(inputSchema);
 // {
 //   type: 'object',
@@ -184,7 +183,7 @@ console.log(inputSchema);
 //   },
 // },
 
-const outputSchema = getDataSchemaByModelClass(User, ProjectionScope.OUTPUT);
+const outputSchema = rds.getDataSchemaByModelClass(User, ProjectionScope.OUTPUT);
 console.log(outputSchema);
 // {
 //   type: 'object',

@@ -21,10 +21,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // dist/esm/index.js
 var index_exports = {};
 __export(index_exports, {
-  RepositoryDataSchema: () => RepositoryDataSchema,
-  getDataSchemaByModelClass: () => getDataSchemaByModelClass2,
-  getDataSchemaByModelName: () => getDataSchemaByModelName2,
-  repositoryDataSchema: () => repositoryDataSchema
+  RepositoryDataSchema: () => RepositoryDataSchema
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -200,13 +197,7 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends import_js_servic
 };
 __name(_RepositoryDataSchema, "RepositoryDataSchema");
 var RepositoryDataSchema = _RepositoryDataSchema;
-var repositoryDataSchema = new RepositoryDataSchema();
-var getDataSchemaByModelName2 = repositoryDataSchema.getDataSchemaByModelName.bind(repositoryDataSchema);
-var getDataSchemaByModelClass2 = repositoryDataSchema.getDataSchemaByModelClass.bind(repositoryDataSchema);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  RepositoryDataSchema,
-  getDataSchemaByModelClass,
-  getDataSchemaByModelName,
-  repositoryDataSchema
+  RepositoryDataSchema
 });
