@@ -18,15 +18,15 @@ npm install @e22m4u/js-repository-data-schema
 
 Модуль экспортирует класс `RepositoryDataSchema`, его глобальный экземпляр
 и методы, рассматриваемые ниже. Прежде чем использовать методы, требуется
-выполнить инъекцию схемы репозиториев в глобальный экземпляр сервиса
-как это показано ниже.
+выполнить инъекцию экземпляра `DatabaseSchema` в глобальный экземпляр
+сервиса как это показано ниже.
 
 ```js
-import {Schema} from '@e22m4u/js-repository';
+import {DatabaseSchema} from '@e22m4u/js-repository';
 import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
 
-const schema = new Schema();
-repositoryDataSchema.setService(Schema, schema);
+const dbs = new DatabaseSchema();
+repositoryDataSchema.setService(DatabaseSchema, dbs);
 ```
 
 ### getDataSchemaByModelName
@@ -45,13 +45,13 @@ declare const getDataSchemaByModelName: (modelName: string) => DataSchema;
 import {repositoryDataSchema} from '@e22m4u/js-repository-data-schema';
 import {getDataSchemaByModelName} from '@e22m4u/js-repository-data-schema';
 // peerDependencies
-import {Schema} from '@e22m4u/js-repository';
 import {DataType} from '@e22m4u/js-repository';
+import {DatabaseSchema} from '@e22m4u/js-repository';
 
-const schema = new Schema();
-repositoryDataSchema.setService(Schema, schema);
+const dbs = new DatabaseSchema();
+repositoryDataSchema.setService(DatabaseSchema, dbs);
 
-schema.defineModel({
+dbs.defineModel({
   name: 'city',
   properties: {
     name: DataType.STRING,
@@ -62,8 +62,8 @@ schema.defineModel({
   },
 });
 
-const dataSchema = getDataSchemaByModelName('city');
-console.log(dataSchema);
+const schema = getDataSchemaByModelName('city');
+console.log(schema);
 // {
 //   type: 'object',
 //   properties: {
@@ -103,8 +103,8 @@ import {model} from '@e22m4u/js-repository-decorators';
 import {property} from '@e22m4u/js-repository-decorators';
 import {getModelDefinitionFromClass} from '@e22m4u/js-repository-decorators';
 
-const schema = new Schema();
-repositoryDataSchema.setService(Schema, schema);
+const dbs = new DatabaseSchema();
+repositoryDataSchema.setService(DatabaseSchema, dbs);
 
 @model()
 class City {
@@ -118,10 +118,10 @@ class City {
   codes!: number[];
 }
 
-schema.defineModel(getModelDefinitionFromClass(City));
+dbs.defineModel(getModelDefinitionFromClass(City));
 
-const dataSchema = getDataSchemaByModelClass(City);
-console.log(dataSchema);
+const schema = getDataSchemaByModelClass(City);
+console.log(schema);
 // {
 //   type: 'object',
 //   properties: {
@@ -151,8 +151,8 @@ import {model} from '@e22m4u/js-repository-decorators';
 import {property} from '@e22m4u/js-repository-decorators';
 import {getModelDefinitionFromClass} from '@e22m4u/js-repository-decorators';
 
-const schema = new Schema();
-repositoryDataSchema.setService(Schema, schema);
+const dbs = new DatabaseSchema();
+repositoryDataSchema.setService(DatabaseSchema, dbs);
 
 @model()
 class User {
@@ -168,7 +168,7 @@ class User {
   password!: string;
 }
 
-schema.defineModel(getModelDefinitionFromClass(User));
+dbs.defineModel(getModelDefinitionFromClass(User));
 
 const inputSchema = getDataSchemaByModelClass(User, ProjectionScope.INPUT);
 console.log(inputSchema);
