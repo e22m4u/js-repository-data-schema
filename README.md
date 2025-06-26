@@ -19,7 +19,7 @@ npm install @e22m4u/js-repository-data-schema
 Модуль экспортирует класс `RepositoryDataSchema` с методами для извлечения
 *схемы данных* определенной модели. Прежде чем использовать методы, требуется
 создать новый экземпляр данного класса и выполнить инъекцию вашего экземпляра
-`DatabaseSchema`.
+`DatabaseSchema` (схема базы данных).
 
 ```js
 import {DatabaseSchema} from '@e22m4u/js-repository';
