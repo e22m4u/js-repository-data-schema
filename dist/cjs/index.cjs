@@ -38,6 +38,7 @@ __name(_InvalidArgumentError, "InvalidArgumentError");
 var InvalidArgumentError = _InvalidArgumentError;
 
 // node_modules/@e22m4u/js-service/src/service-container.js
+var SERVICE_CONTAINER_CLASS_NAME = "ServiceContainer";
 var _ServiceContainer = class _ServiceContainer {
   /**
    * Services map.
@@ -173,7 +174,21 @@ var _ServiceContainer = class _ServiceContainer {
   }
 };
 __name(_ServiceContainer, "ServiceContainer");
+/**
+ * Kinds.
+ *
+ * @type {string[]}
+ */
+__publicField(_ServiceContainer, "kinds", [SERVICE_CONTAINER_CLASS_NAME]);
 var ServiceContainer = _ServiceContainer;
+
+// node_modules/@e22m4u/js-service/src/utils/is-service-container.js
+function isServiceContainer(container) {
+  return Boolean(
+    container && typeof container === "object" && typeof container.constructor === "function" && Array.isArray(container.constructor.kinds) && container.constructor.kinds.includes(SERVICE_CONTAINER_CLASS_NAME)
+  );
+}
+__name(isServiceContainer, "isServiceContainer");
 
 // node_modules/@e22m4u/js-service/src/service.js
 var SERVICE_CLASS_NAME = "Service";
@@ -190,7 +205,7 @@ var _Service = class _Service {
    * @param {ServiceContainer|undefined} container
    */
   constructor(container = void 0) {
-    this.container = container instanceof ServiceContainer ? container : new ServiceContainer();
+    this.container = isServiceContainer(container) ? container : new ServiceContainer();
   }
   /**
    * Получить существующий или новый экземпляр.
