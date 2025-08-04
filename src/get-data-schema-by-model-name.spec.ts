@@ -120,6 +120,19 @@ describe('getDataSchemaByModelName', function () {
     });
   });
 
+  it('adds primary key as first in data schema', function () {
+    const dbs = new DatabaseSchema();
+    dbs.defineModel({
+      name: 'myModel',
+      properties: {
+        foo: {type: RepDataType.NUMBER},
+        bar: {type: RepDataType.NUMBER, primaryKey: true},
+      },
+    });
+    const res = getDataSchemaByModelName(dbs, 'myModel');
+    expect(Object.keys(res.properties!)).to.be.eql(['bar', 'foo']);
+  });
+
   describe('default values', function () {
     it('sets "default" option', function () {
       const dbs = new DatabaseSchema();

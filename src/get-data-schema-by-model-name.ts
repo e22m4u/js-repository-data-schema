@@ -40,8 +40,16 @@ function getDataSchemaPropertiesByModelName(
   const propsDef = dbSchema
     .getService(ModelDefinitionUtils)
     .getPropertiesDefinitionInBaseModelHierarchy(modelName);
+  // чтобы первичный ключ был первый в схеме данных,
+  // сначала добавляются схемы с флагом "primaryKey"
   Object.keys(propsDef).forEach(propName => {
     const propDef = propsDef[propName];
+    if (typeof propDef !== 'object' || !propDef.primaryKey) return;
+    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
+  });
+  Object.keys(propsDef).forEach(propName => {
+    const propDef = propsDef[propName];
+    if (typeof propDef === 'object' && propDef.primaryKey) return;
     res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
   });
   const relsDef = dbSchema
