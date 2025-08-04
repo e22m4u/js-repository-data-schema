@@ -139,10 +139,10 @@ console.log(schema);
 Пример с использованием проекции:
 
 ```ts
+import {noInput} from '@e22m4u/ts-projection';
+import {noOutput} from '@e22m4u/ts-projection';
 import {DataType} from '@e22m4u/js-repository';
 import {DatabaseSchema} from '@e22m4u/js-repository';
-import {hiddenProperty} from '@e22m4u/ts-projection';
-import {lockedProperty} from '@e22m4u/ts-projection';
 import {ProjectionScope} from '@e22m4u/ts-projection';
 import {model} from '@e22m4u/js-repository-decorators';
 import {property} from '@e22m4u/js-repository-decorators';
@@ -158,11 +158,11 @@ class User {
   @property(DataType.STRING)
   name!: string;
   
-  @lockedProperty() // исключается для INPUT
+  @noInput() // исключается для INPUT
   @property(DataType.STRING)
   role!: string
 
-  @hiddenProperty() // исключается для OUTPUT
+  @noOutput() // исключается для OUTPUT
   @property(DataType.STRING)
   password!: string;
 }

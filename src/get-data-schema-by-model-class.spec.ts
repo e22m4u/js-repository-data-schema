@@ -1,12 +1,12 @@
 import {expect} from 'chai';
+import {noInput} from '@e22m4u/ts-projection';
+import {noOutput} from '@e22m4u/ts-projection';
 import {DataType} from '@e22m4u/ts-data-schema';
+import {allowInput} from '@e22m4u/ts-projection';
+import {allowOutput} from '@e22m4u/ts-projection';
 import {RelationType} from '@e22m4u/js-repository';
 import {DatabaseSchema} from '@e22m4u/js-repository';
-import {hiddenProperty} from '@e22m4u/ts-projection';
-import {lockedProperty} from '@e22m4u/ts-projection';
 import {ProjectionScope} from '@e22m4u/ts-projection';
-import {visibleProperty} from '@e22m4u/ts-projection';
-import {writableProperty} from '@e22m4u/ts-projection';
 import {model} from '@e22m4u/js-repository-decorators';
 import {property} from '@e22m4u/js-repository-decorators';
 import {relation} from '@e22m4u/js-repository-decorators';
@@ -683,16 +683,16 @@ describe('getDataSchemaByModeClass', function () {
     it('does not use projection if projection scope is not specified', function () {
       @model()
       class MyModel {
-        @lockedProperty()
+        @noInput()
         @property(RepDataType.STRING)
         foo?: string;
-        @writableProperty()
+        @allowInput()
         @property(RepDataType.STRING)
         bar?: string;
-        @hiddenProperty()
+        @noOutput()
         @property(RepDataType.STRING)
         baz?: string;
-        @visibleProperty()
+        @allowOutput()
         @property(RepDataType.STRING)
         abc?: string;
       }
@@ -713,10 +713,10 @@ describe('getDataSchemaByModeClass', function () {
     it('uses INPUT projection by specified scope', function () {
       @model()
       class MyModel {
-        @lockedProperty()
+        @noInput()
         @property(RepDataType.STRING)
         foo?: string;
-        @hiddenProperty()
+        @noOutput()
         @property(RepDataType.NUMBER)
         bar?: number;
       }
@@ -738,10 +738,10 @@ describe('getDataSchemaByModeClass', function () {
     it('uses OUTPUT projection by specified scope', function () {
       @model()
       class MyModel {
-        @lockedProperty()
+        @noInput()
         @property(RepDataType.STRING)
         foo?: string;
-        @hiddenProperty()
+        @noOutput()
         @property(RepDataType.NUMBER)
         bar?: number;
       }
