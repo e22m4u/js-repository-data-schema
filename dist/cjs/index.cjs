@@ -28,7 +28,7 @@ __export(index_exports, {
 module.exports = __toCommonJS(index_exports);
 
 // dist/esm/repository-data-schema.js
-var import_js_format2 = require("@e22m4u/js-format");
+var import_js_format4 = require("@e22m4u/js-format");
 
 // node_modules/@e22m4u/js-service/src/errors/invalid-argument-error.js
 var import_js_format = require("@e22m4u/js-format");
@@ -120,6 +120,22 @@ var _ServiceContainer = class _ServiceContainer {
       this._services.set(ctor, service);
     }
     return service;
+  }
+  /**
+   * Получить существующий или новый экземпляр,
+   * только если конструктор зарегистрирован.
+   *
+   * @param {*} ctor
+   * @param {*} args
+   * @returns {*}
+   */
+  getRegistered(ctor, ...args) {
+    if (!this.has(ctor))
+      throw new InvalidArgumentError(
+        "The constructor %v is not registered.",
+        ctor
+      );
+    return this.get(ctor, ...args);
   }
   /**
    * Проверить существование конструктора в контейнере.
@@ -236,6 +252,17 @@ var _Service = class _Service {
     return this.container.get(ctor, ...args);
   }
   /**
+   * Получить существующий или новый экземпляр,
+   * только если конструктор зарегистрирован.
+   *
+   * @param {*} ctor
+   * @param {*} args
+   * @returns {*}
+   */
+  getRegisteredService(ctor, ...args) {
+    return this.container.getRegistered(ctor, ...args);
+  }
+  /**
    * Проверка существования конструктора в контейнере.
    *
    * @param {*} ctor
@@ -286,6 +313,452 @@ __name(_Service, "Service");
  */
 __publicField(_Service, "kinds", [SERVICE_CLASS_NAME]);
 var Service = _Service;
+
+// node_modules/@e22m4u/js-debug/src/utils/to-camel-case.js
+function toCamelCase(input) {
+  return input.replace(/(^\w|[A-Z]|\b\w)/g, (c) => c.toUpperCase()).replace(/\W+/g, "").replace(/(^\w)/g, (c) => c.toLowerCase());
+}
+__name(toCamelCase, "toCamelCase");
+
+// node_modules/@e22m4u/js-debug/src/utils/is-non-array-object.js
+function isNonArrayObject(input) {
+  return Boolean(input && typeof input === "object" && !Array.isArray(input));
+}
+__name(isNonArrayObject, "isNonArrayObject");
+
+// node_modules/@e22m4u/js-debug/src/utils/generate-random-hex.js
+function generateRandomHex(length = 4) {
+  if (length <= 0) {
+    return "";
+  }
+  const firstCharCandidates = "abcdef";
+  const restCharCandidates = "0123456789abcdef";
+  let result = "";
+  const firstCharIndex = Math.floor(Math.random() * firstCharCandidates.length);
+  result += firstCharCandidates[firstCharIndex];
+  for (let i = 1; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * restCharCandidates.length);
+    result += restCharCandidates[randomIndex];
+  }
+  return result;
+}
+__name(generateRandomHex, "generateRandomHex");
+
+// node_modules/@e22m4u/js-debug/src/debuggable.js
+var _Debuggable = class _Debuggable {
+  /**
+   * Debug.
+   *
+   * @type {Function}
+   */
+  debug;
+  /**
+   * Ctor Debug.
+   *
+   * @type {Function}
+   */
+  ctorDebug;
+  /**
+   * Возвращает функцию-отладчик с сегментом пространства имен
+   * указанного в параметре метода.
+   *
+   * @param {Function} method
+   * @returns {Function}
+   */
+  getDebuggerFor(method) {
+    return this.debug.withHash().withNs(method.name);
+  }
+  /**
+   * Constructor.
+   *
+   * @param {object|undefined} container
+   * @param {DebuggableOptions|undefined} options
+   */
+  constructor(options = void 0) {
+    const className = toCamelCase(this.constructor.name);
+    options = typeof options === "object" && options || {};
+    const namespace = options.namespace && String(options.namespace) || void 0;
+    if (namespace) {
+      this.debug = createDebugger(namespace, className);
+    } else {
+      this.debug = createDebugger(className);
+    }
+    const noEnvNs = Boolean(options.noEnvNs);
+    if (noEnvNs) this.debug = this.debug.withoutEnvNs();
+    this.ctorDebug = this.debug.withNs("constructor").withHash();
+    this.ctorDebug(_Debuggable.INSTANTIATION_MESSAGE);
+  }
+};
+__name(_Debuggable, "Debuggable");
+/**
+ * Instantiation message;
+ *
+ * @type {string}
+ */
+__publicField(_Debuggable, "INSTANTIATION_MESSAGE", "Instantiated.");
+var Debuggable = _Debuggable;
+
+// node_modules/@e22m4u/js-debug/src/create-debugger.js
+var import_js_format2 = require("@e22m4u/js-format");
+var import_js_format3 = require("@e22m4u/js-format");
+
+// node_modules/@e22m4u/js-debug/src/create-colorized-dump.js
+var import_util = require("util");
+var INSPECT_OPTIONS = {
+  showHidden: false,
+  depth: null,
+  colors: true,
+  compact: false
+};
+function createColorizedDump(value) {
+  return (0, import_util.inspect)(value, INSPECT_OPTIONS);
+}
+__name(createColorizedDump, "createColorizedDump");
+
+// node_modules/@e22m4u/js-debug/src/create-debugger.js
+var AVAILABLE_COLORS = [
+  20,
+  21,
+  26,
+  27,
+  32,
+  33,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  56,
+  57,
+  62,
+  63,
+  68,
+  69,
+  74,
+  75,
+  76,
+  77,
+  78,
+  79,
+  80,
+  81,
+  92,
+  93,
+  98,
+  99,
+  112,
+  113,
+  128,
+  129,
+  134,
+  135,
+  148,
+  149,
+  160,
+  161,
+  162,
+  163,
+  164,
+  165,
+  166,
+  167,
+  168,
+  169,
+  170,
+  171,
+  172,
+  173,
+  178,
+  179,
+  184,
+  185,
+  196,
+  197,
+  198,
+  199,
+  200,
+  201,
+  202,
+  203,
+  204,
+  205,
+  206,
+  207,
+  208,
+  209,
+  214,
+  215,
+  220,
+  221
+];
+var DEFAULT_OFFSET_STEP_SPACES = 2;
+function pickColorCode(input) {
+  if (typeof input !== "string")
+    throw new import_js_format2.Errorf(
+      'The parameter "input" of the function pickColorCode must be a String, but %v given.',
+      input
+    );
+  let hash = 0;
+  for (let i = 0; i < input.length; i++) {
+    hash = (hash << 5) - hash + input.charCodeAt(i);
+    hash |= 0;
+  }
+  return AVAILABLE_COLORS[Math.abs(hash) % AVAILABLE_COLORS.length];
+}
+__name(pickColorCode, "pickColorCode");
+function wrapStringByColorCode(input, color) {
+  if (typeof input !== "string")
+    throw new import_js_format2.Errorf(
+      'The parameter "input" of the function wrapStringByColorCode must be a String, but %v given.',
+      input
+    );
+  if (typeof color !== "number")
+    throw new import_js_format2.Errorf(
+      'The parameter "color" of the function wrapStringByColorCode must be a Number, but %v given.',
+      color
+    );
+  const colorCode = "\x1B[3" + (Number(color) < 8 ? color : "8;5;" + color);
+  return `${colorCode};1m${input}\x1B[0m`;
+}
+__name(wrapStringByColorCode, "wrapStringByColorCode");
+function matchPattern(pattern, input) {
+  if (typeof pattern !== "string")
+    throw new import_js_format2.Errorf(
+      'The parameter "pattern" of the function matchPattern must be a String, but %v given.',
+      pattern
+    );
+  if (typeof input !== "string")
+    throw new import_js_format2.Errorf(
+      'The parameter "input" of the function matchPattern must be a String, but %v given.',
+      input
+    );
+  const regexpStr = pattern.replace(/\*/g, ".*?");
+  const regexp = new RegExp("^" + regexpStr + "$");
+  return regexp.test(input);
+}
+__name(matchPattern, "matchPattern");
+function createDebugger(namespaceOrOptions = void 0, ...namespaceSegments) {
+  if (namespaceOrOptions && typeof namespaceOrOptions !== "string" && !isNonArrayObject(namespaceOrOptions)) {
+    throw new import_js_format2.Errorf(
+      'The parameter "namespace" of the function createDebugger must be a String or an Object, but %v given.',
+      namespaceOrOptions
+    );
+  }
+  const withCustomState = isNonArrayObject(namespaceOrOptions);
+  const state = withCustomState ? namespaceOrOptions : {};
+  state.envNsSegments = Array.isArray(state.envNsSegments) ? state.envNsSegments : [];
+  state.nsSegments = Array.isArray(state.nsSegments) ? state.nsSegments : [];
+  state.pattern = typeof state.pattern === "string" ? state.pattern : "";
+  state.hash = typeof state.hash === "string" ? state.hash : "";
+  state.offsetSize = typeof state.offsetSize === "number" ? state.offsetSize : 0;
+  state.offsetStep = typeof state.offsetStep !== "string" ? " ".repeat(DEFAULT_OFFSET_STEP_SPACES) : state.offsetStep;
+  state.delimiter = state.delimiter && typeof state.delimiter === "string" ? state.delimiter : ":";
+  if (!withCustomState) {
+    if (typeof process !== "undefined" && process.env && process.env["DEBUGGER_NAMESPACE"]) {
+      state.envNsSegments.push(process.env.DEBUGGER_NAMESPACE);
+    }
+    if (typeof namespaceOrOptions === "string")
+      state.nsSegments.push(namespaceOrOptions);
+  }
+  namespaceSegments.forEach((segment) => {
+    if (!segment || typeof segment !== "string")
+      throw new import_js_format2.Errorf(
+        "Namespace segment must be a non-empty String, but %v given.",
+        segment
+      );
+    state.nsSegments.push(segment);
+  });
+  if (typeof process !== "undefined" && process.env && process.env["DEBUG"]) {
+    state.pattern = process.env["DEBUG"];
+  } else if (typeof localStorage !== "undefined" && typeof localStorage.getItem("debug") === "string") {
+    state.pattern = localStorage.getItem("debug");
+  }
+  const isDebuggerEnabled = /* @__PURE__ */ __name(() => {
+    const nsStr = [...state.envNsSegments, ...state.nsSegments].join(
+      state.delimiter
+    );
+    const patterns = state.pattern.split(/[\s,]+/).filter((p) => p.length > 0);
+    if (patterns.length === 0 && state.pattern !== "*") return false;
+    for (const singlePattern of patterns) {
+      if (matchPattern(singlePattern, nsStr)) return true;
+    }
+    return false;
+  }, "isDebuggerEnabled");
+  const getPrefix = /* @__PURE__ */ __name(() => {
+    let tokens = [];
+    [...state.envNsSegments, ...state.nsSegments, state.hash].filter(Boolean).forEach((token) => {
+      const extractedTokens = token.split(state.delimiter).filter(Boolean);
+      tokens = [...tokens, ...extractedTokens];
+    });
+    let res = tokens.reduce((acc, token, index) => {
+      const isLast = tokens.length - 1 === index;
+      const tokenColor = pickColorCode(token);
+      acc += wrapStringByColorCode(token, tokenColor);
+      if (!isLast) acc += state.delimiter;
+      return acc;
+    }, "");
+    if (state.offsetSize > 0) res += state.offsetStep.repeat(state.offsetSize);
+    return res;
+  }, "getPrefix");
+  function debugFn(messageOrData, ...args) {
+    if (!isDebuggerEnabled()) return;
+    const prefix = getPrefix();
+    const multiString = (0, import_js_format3.format)(messageOrData, ...args);
+    const rows = multiString.split("\n");
+    rows.forEach((message) => {
+      prefix ? console.log(`${prefix} ${message}`) : console.log(message);
+    });
+  }
+  __name(debugFn, "debugFn");
+  debugFn.withNs = function(namespace, ...args) {
+    const stateCopy = JSON.parse(JSON.stringify(state));
+    [namespace, ...args].forEach((ns) => {
+      if (!ns || typeof ns !== "string")
+        throw new import_js_format2.Errorf(
+          "Debugger namespace must be a non-empty String, but %v given.",
+          ns
+        );
+      stateCopy.nsSegments.push(ns);
+    });
+    return createDebugger(stateCopy);
+  };
+  debugFn.withHash = function(hashLength = 4) {
+    const stateCopy = JSON.parse(JSON.stringify(state));
+    if (!hashLength || typeof hashLength !== "number" || hashLength < 1) {
+      throw new import_js_format2.Errorf(
+        "Debugger hash must be a positive Number, but %v given.",
+        hashLength
+      );
+    }
+    stateCopy.hash = generateRandomHex(hashLength);
+    return createDebugger(stateCopy);
+  };
+  debugFn.withOffset = function(offsetSize) {
+    const stateCopy = JSON.parse(JSON.stringify(state));
+    if (!offsetSize || typeof offsetSize !== "number" || offsetSize < 1) {
+      throw new import_js_format2.Errorf(
+        "Debugger offset must be a positive Number, but %v given.",
+        offsetSize
+      );
+    }
+    stateCopy.offsetSize = offsetSize;
+    return createDebugger(stateCopy);
+  };
+  debugFn.withoutEnvNs = function() {
+    const stateCopy = JSON.parse(JSON.stringify(state));
+    stateCopy.envNsSegments = [];
+    return createDebugger(stateCopy);
+  };
+  debugFn.inspect = function(valueOrDesc, ...args) {
+    if (!isDebuggerEnabled()) return;
+    const prefix = getPrefix();
+    let multiString = "";
+    if (typeof valueOrDesc === "string" && args.length) {
+      multiString += `${valueOrDesc}
+`;
+      const multilineDump = args.map((v) => createColorizedDump(v)).join("\n");
+      const dumpRows = multilineDump.split("\n");
+      multiString += dumpRows.map((v) => `${state.offsetStep}${v}`).join("\n");
+    } else {
+      multiString += [valueOrDesc, ...args].map((v) => createColorizedDump(v)).join("\n");
+    }
+    const rows = multiString.split("\n");
+    rows.forEach((message) => {
+      prefix ? console.log(`${prefix} ${message}`) : console.log(message);
+    });
+  };
+  debugFn.state = state;
+  return debugFn;
+}
+__name(createDebugger, "createDebugger");
+
+// node_modules/@e22m4u/js-service/src/debuggable-service.js
+var _DebuggableService = class _DebuggableService extends Debuggable {
+  /**
+   * Service.
+   *
+   * @type {Service}
+   */
+  _service;
+  /**
+   * Container.
+   *
+   * @type {ServiceContainer}
+   */
+  get container() {
+    return this._service.container;
+  }
+  /**
+   * Получить существующий или новый экземпляр.
+   *
+   * @type {Service['getService']}
+   */
+  get getService() {
+    return this._service.getService;
+  }
+  /**
+   * Получить существующий или новый экземпляр,
+   * только если конструктор зарегистрирован.
+   *
+   * @type {Service['getRegisteredService']}
+   */
+  get getRegisteredService() {
+    return this._service.getRegisteredService;
+  }
+  /**
+   * Проверка существования конструктора в контейнере.
+   *
+   * @type {Service['hasService']}
+   */
+  get hasService() {
+    return this._service.hasService;
+  }
+  /**
+   * Добавить конструктор в контейнер.
+   *
+   * @type {Service['addService']}
+   */
+  get addService() {
+    return this._service.addService;
+  }
+  /**
+   * Добавить конструктор и создать экземпляр.
+   *
+   * @type {Service['useService']}
+   */
+  get useService() {
+    return this._service.useService;
+  }
+  /**
+   * Добавить конструктор и связанный экземпляр.
+   *
+   * @type {Service['setService']}
+   */
+  get setService() {
+    return this._service.setService;
+  }
+  /**
+   * Constructor.
+   *
+   * @param {ServiceContainer|undefined} container
+   * @param {import('@e22m4u/js-debug').DebuggableOptions|undefined} options
+   */
+  constructor(container = void 0, options = void 0) {
+    super(options);
+    this._service = new Service(container);
+  }
+};
+__name(_DebuggableService, "DebuggableService");
+/**
+ * Kinds.
+ *
+ * @type {string[]}
+ */
+__publicField(_DebuggableService, "kinds", Service.kinds);
+var DebuggableService = _DebuggableService;
 
 // dist/esm/repository-data-schema.js
 var import_js_repository4 = require("@e22m4u/js-repository");
@@ -447,7 +920,7 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends Service {
   getDataSchemaByModelName(modelName) {
     const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
     if (!hasDbSchema)
-      throw new import_js_format2.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
+      throw new import_js_format4.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
     return getDataSchemaByModelName(this.getService(import_js_repository4.DatabaseSchema), modelName);
   }
   /**
@@ -459,7 +932,7 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends Service {
   getDataSchemaByModelClass(modelClass, projectionScope) {
     const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
     if (!hasDbSchema)
-      throw new import_js_format2.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
+      throw new import_js_format4.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
     return getDataSchemaByModelClass(this.getService(import_js_repository4.DatabaseSchema), modelClass, projectionScope);
   }
 };
