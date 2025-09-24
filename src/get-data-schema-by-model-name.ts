@@ -147,7 +147,7 @@ function convertRelationDefinitionToDataSchemaProperties(
   switch (relDef.type) {
     case RelationType.BELONGS_TO: {
       const utils = dbSchema.getService(ModelDefinitionUtils);
-      let foreignKeyDataType = DataType.ANY;
+      let foreignKeyDataType: DataType = DataType.ANY;
       if ('model' in relDef && relDef.model) {
         const targetModelName = (relDef as BelongsToDefinition).model;
         const targetPkPropName =
@@ -173,7 +173,7 @@ function convertRelationDefinitionToDataSchemaProperties(
     }
     case RelationType.REFERENCES_MANY: {
       const utils = dbSchema.getService(ModelDefinitionUtils);
-      let foreignKeyDataType = DataType.ANY;
+      let foreignKeyDataType: DataType = DataType.ANY;
       if ('model' in relDef && relDef.model) {
         const targetModelName = (relDef as ReferencesManyDefinition).model;
         const targetPkPropName =
