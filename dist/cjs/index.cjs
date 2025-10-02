@@ -23,7 +23,9 @@ var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "sy
 // dist/esm/index.js
 var index_exports = {};
 __export(index_exports, {
-  RepositoryDataSchema: () => RepositoryDataSchema
+  RepositoryDataSchema: () => RepositoryDataSchema,
+  getDataSchemaByModelClass: () => getDataSchemaByModelClass,
+  getDataSchemaByModelName: () => getDataSchemaByModelName
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -946,5 +948,7 @@ __name(_RepositoryDataSchema, "RepositoryDataSchema");
 var RepositoryDataSchema = _RepositoryDataSchema;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  RepositoryDataSchema
+  RepositoryDataSchema,
+  getDataSchemaByModelClass,
+  getDataSchemaByModelName
 });
