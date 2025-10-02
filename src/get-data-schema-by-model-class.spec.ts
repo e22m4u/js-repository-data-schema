@@ -184,6 +184,80 @@ describe('getDataSchemaByModeClass', function () {
     });
   });
 
+  describe('options', function () {
+    it('skips the schema option "required" when the option "skipRequiredOptions" is true', function () {
+      @model()
+      class MyModel {
+        @property({
+          type: RepDataType.STRING,
+          required: true,
+        })
+        foo?: string;
+      }
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res1 = getDataSchemaByModelClass(dbs, MyModel, undefined, {
+        skipRequiredOptions: true,
+      });
+      const res2 = getDataSchemaByModelClass(dbs, MyModel, undefined, {
+        skipRequiredOptions: false,
+      });
+      expect(res1).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          foo: {
+            type: DataType.STRING,
+          },
+        },
+      });
+      expect(res2).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          foo: {
+            type: DataType.STRING,
+            required: true,
+          },
+        },
+      });
+    });
+
+    it('skips the schema option "default" when the option "skipDefaultValues" is true', function () {
+      @model()
+      class MyModel {
+        @property({
+          type: RepDataType.STRING,
+          default: 'value',
+        })
+        foo?: string;
+      }
+      const dbs = new DatabaseSchema();
+      dbs.defineModel(getModelDefinitionFromClass(MyModel));
+      const res1 = getDataSchemaByModelClass(dbs, MyModel, undefined, {
+        skipDefaultValues: true,
+      });
+      const res2 = getDataSchemaByModelClass(dbs, MyModel, undefined, {
+        skipDefaultValues: false,
+      });
+      expect(res1).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          foo: {
+            type: DataType.STRING,
+          },
+        },
+      });
+      expect(res2).to.be.eql({
+        type: DataType.OBJECT,
+        properties: {
+          foo: {
+            type: DataType.STRING,
+            default: 'value',
+          },
+        },
+      });
+    });
+  });
+
   describe('default values', function () {
     it('sets "default" option', function () {
       @model()

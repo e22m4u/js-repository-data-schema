@@ -133,6 +133,58 @@ describe('getDataSchemaByModelName', function () {
     expect(Object.keys(res.properties!)).to.be.eql(['bar', 'foo']);
   });
 
+  describe('options', function () {
+    it('skips the schema option "required" when the option "skipRequiredOptions" is true', function () {
+      const dbs = new DatabaseSchema();
+      dbs.defineModel({
+        name: 'myModel',
+        properties: {
+          foo: {type: RepDataType.STRING, required: true},
+          bar: {type: RepDataType.STRING, required: true},
+        },
+      });
+      const res1 = getDataSchemaByModelName(dbs, 'myModel', {
+        skipRequiredOptions: true,
+      });
+      const res2 = getDataSchemaByModelName(dbs, 'myModel', {
+        skipRequiredOptions: false,
+      });
+      expect(res1.properties).to.be.eql({
+        foo: {type: DataType.STRING},
+        bar: {type: DataType.STRING},
+      });
+      expect(res2.properties).to.be.eql({
+        foo: {type: DataType.STRING, required: true},
+        bar: {type: DataType.STRING, required: true},
+      });
+    });
+
+    it('skips the schema option "default" when the option "skipDefaultValues" is true', function () {
+      const dbs = new DatabaseSchema();
+      dbs.defineModel({
+        name: 'myModel',
+        properties: {
+          foo: {type: RepDataType.STRING, default: 'value1'},
+          bar: {type: RepDataType.STRING, default: 'value2'},
+        },
+      });
+      const res1 = getDataSchemaByModelName(dbs, 'myModel', {
+        skipDefaultValues: true,
+      });
+      const res2 = getDataSchemaByModelName(dbs, 'myModel', {
+        skipDefaultValues: false,
+      });
+      expect(res1.properties).to.be.eql({
+        foo: {type: DataType.STRING},
+        bar: {type: DataType.STRING},
+      });
+      expect(res2.properties).to.be.eql({
+        foo: {type: DataType.STRING, default: 'value1'},
+        bar: {type: DataType.STRING, default: 'value2'},
+      });
+    });
+  });
+
   describe('default values', function () {
     it('sets "default" option', function () {
       const dbs = new DatabaseSchema();

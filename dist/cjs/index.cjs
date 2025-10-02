@@ -770,27 +770,27 @@ var import_ts_data_schema = require("@e22m4u/ts-data-schema");
 var import_js_repository = require("@e22m4u/js-repository");
 var import_js_repository2 = require("@e22m4u/js-repository");
 var import_js_repository3 = require("@e22m4u/js-repository");
-function getDataSchemaByModelName(dbSchema, modelName) {
+function getDataSchemaByModelName(dbSchema, modelName, options) {
   return {
     type: import_ts_data_schema.DataType.OBJECT,
-    properties: getDataSchemaPropertiesByModelName(dbSchema, modelName)
+    properties: getDataSchemaPropertiesByModelName(dbSchema, modelName, options)
   };
 }
 __name(getDataSchemaByModelName, "getDataSchemaByModelName");
-function getDataSchemaPropertiesByModelName(dbSchema, modelName) {
+function getDataSchemaPropertiesByModelName(dbSchema, modelName, options) {
   const res = {};
   const propsDef = dbSchema.getService(import_js_repository2.ModelDefinitionUtils).getPropertiesDefinitionInBaseModelHierarchy(modelName);
   Object.keys(propsDef).forEach((propName) => {
     const propDef = propsDef[propName];
     if (typeof propDef !== "object" || !propDef.primaryKey)
       return;
-    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
+    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef, false, options);
   });
   Object.keys(propsDef).forEach((propName) => {
     const propDef = propsDef[propName];
     if (typeof propDef === "object" && propDef.primaryKey)
       return;
-    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
+    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef, false, options);
   });
   const relsDef = dbSchema.getService(import_js_repository2.ModelDefinitionUtils).getRelationsDefinitionInBaseModelHierarchy(modelName);
   Object.keys(relsDef).forEach((relName) => {
@@ -804,7 +804,7 @@ function getDataSchemaPropertiesByModelName(dbSchema, modelName) {
   return res;
 }
 __name(getDataSchemaPropertiesByModelName, "getDataSchemaPropertiesByModelName");
-function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem = false) {
+function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem = false, options) {
   const res = { type: import_ts_data_schema.DataType.ANY };
   let type;
   if (typeof propDef === "string") {
@@ -828,21 +828,23 @@ function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem =
       res.type = import_ts_data_schema.DataType.OBJECT;
       if (typeof propDef === "object") {
         if (!forArrayItem && propDef.model)
-          res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.model);
+          res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.model, options);
         else if (forArrayItem && propDef.itemModel)
-          res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.itemModel);
+          res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.itemModel, options);
       }
       break;
     case import_js_repository3.DataType.ARRAY:
       res.type = import_ts_data_schema.DataType.ARRAY;
       if (!forArrayItem && typeof propDef === "object" && propDef.itemType)
-        res.items = convertPropertyDefinitionToDataSchema(dbSchema, propDef, true);
+        res.items = convertPropertyDefinitionToDataSchema(dbSchema, propDef, true, options);
       break;
   }
-  if (typeof propDef === "object" && propDef.required)
+  if (!(options == null ? void 0 : options.skipRequiredOptions) && typeof propDef === "object" && propDef.required) {
     res.required = true;
-  if (typeof propDef === "object" && propDef.default !== void 0)
+  }
+  if (!(options == null ? void 0 : options.skipDefaultValues) && typeof propDef === "object" && propDef.default !== void 0) {
     res.default = propDef.default;
+  }
   return res;
 }
 __name(convertPropertyDefinitionToDataSchema, "convertPropertyDefinitionToDataSchema");
@@ -900,10 +902,10 @@ __name(convertRelationDefinitionToDataSchemaProperties, "convertRelationDefiniti
 // dist/esm/get-data-schema-by-model-class.js
 var import_ts_projection = require("@e22m4u/ts-projection");
 var import_js_repository_decorators = require("@e22m4u/js-repository-decorators");
-function getDataSchemaByModelClass(dbSchema, modelClass, projectionScope) {
+function getDataSchemaByModelClass(dbSchema, modelClass, projectionScope, options) {
   const classMd = import_js_repository_decorators.ModelReflector.getMetadata(modelClass);
   const modelName = (classMd == null ? void 0 : classMd.name) ?? modelClass.name;
-  let dataSchema = getDataSchemaByModelName(dbSchema, modelName);
+  let dataSchema = getDataSchemaByModelName(dbSchema, modelName, options);
   if (projectionScope) {
     dataSchema = Object.assign({}, dataSchema);
     dataSchema.properties = (0, import_ts_projection.applyProjection)(projectionScope, modelClass, dataSchema.properties);
@@ -918,24 +920,26 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends Service {
    * Get data schema by model name.
    *
    * @param modelName
+   * @param options
    */
-  getDataSchemaByModelName(modelName) {
+  getDataSchemaByModelName(modelName, options) {
     const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
     if (!hasDbSchema)
       throw new import_js_format4.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
-    return getDataSchemaByModelName(this.getService(import_js_repository4.DatabaseSchema), modelName);
+    return getDataSchemaByModelName(this.getService(import_js_repository4.DatabaseSchema), modelName, options);
   }
   /**
    * Get data schema by model class.
    *
    * @param modelClass
    * @param projectionScope
+   * @param options
    */
-  getDataSchemaByModelClass(modelClass, projectionScope) {
+  getDataSchemaByModelClass(modelClass, projectionScope, options) {
     const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
     if (!hasDbSchema)
       throw new import_js_format4.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
-    return getDataSchemaByModelClass(this.getService(import_js_repository4.DatabaseSchema), modelClass, projectionScope);
+    return getDataSchemaByModelClass(this.getService(import_js_repository4.DatabaseSchema), modelClass, projectionScope, options);
   }
 };
 __name(_RepositoryDataSchema, "RepositoryDataSchema");

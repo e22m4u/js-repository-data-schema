@@ -11,6 +11,14 @@ import {DataType as RepDataType} from '@e22m4u/js-repository';
 import {ReferencesManyDefinition} from '@e22m4u/js-repository';
 
 /**
+ * Data schema options.
+ */
+export type DataSchemaOptions = {
+  skipDefaultValues?: boolean;
+  skipRequiredOptions?: boolean;
+};
+
+/**
  * Get data schema by model name.
  *
  * @param dbSchema
@@ -19,10 +27,15 @@ import {ReferencesManyDefinition} from '@e22m4u/js-repository';
 export function getDataSchemaByModelName(
   dbSchema: DatabaseSchema,
   modelName: string,
+  options?: DataSchemaOptions,
 ): DataSchema {
   return {
     type: DataType.OBJECT,
-    properties: getDataSchemaPropertiesByModelName(dbSchema, modelName),
+    properties: getDataSchemaPropertiesByModelName(
+      dbSchema,
+      modelName,
+      options,
+    ),
   };
 }
 
@@ -31,10 +44,12 @@ export function getDataSchemaByModelName(
  *
  * @param dbSchema
  * @param modelName
+ * @param options
  */
 function getDataSchemaPropertiesByModelName(
   dbSchema: DatabaseSchema,
   modelName: string,
+  options?: DataSchemaOptions,
 ): DataSchemaProperties {
   const res: DataSchemaProperties = {};
   const propsDef = dbSchema
@@ -45,12 +60,22 @@ function getDataSchemaPropertiesByModelName(
   Object.keys(propsDef).forEach(propName => {
     const propDef = propsDef[propName];
     if (typeof propDef !== 'object' || !propDef.primaryKey) return;
-    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
+    res[propName] = convertPropertyDefinitionToDataSchema(
+      dbSchema,
+      propDef,
+      false,
+      options,
+    );
   });
   Object.keys(propsDef).forEach(propName => {
     const propDef = propsDef[propName];
     if (typeof propDef === 'object' && propDef.primaryKey) return;
-    res[propName] = convertPropertyDefinitionToDataSchema(dbSchema, propDef);
+    res[propName] = convertPropertyDefinitionToDataSchema(
+      dbSchema,
+      propDef,
+      false,
+      options,
+    );
   });
   const relsDef = dbSchema
     .getService(ModelDefinitionUtils)
@@ -75,11 +100,13 @@ function getDataSchemaPropertiesByModelName(
  * @param dbSchema
  * @param propDef
  * @param forArrayItem
+ * @param options
  */
 function convertPropertyDefinitionToDataSchema(
   dbSchema: DatabaseSchema,
   propDef: PropertyDefinition,
   forArrayItem = false,
+  options?: DataSchemaOptions,
 ): DataSchema {
   const res: DataSchema = {type: DataType.ANY};
   let type: RepDataType;
@@ -107,11 +134,13 @@ function convertPropertyDefinitionToDataSchema(
           res.properties = getDataSchemaPropertiesByModelName(
             dbSchema,
             propDef.model,
+            options,
           );
         else if (forArrayItem && propDef.itemModel)
           res.properties = getDataSchemaPropertiesByModelName(
             dbSchema,
             propDef.itemModel,
+            options,
           );
       }
       break;
@@ -122,12 +151,24 @@ function convertPropertyDefinitionToDataSchema(
           dbSchema,
           propDef,
           true,
+          options,
         );
       break;
   }
-  if (typeof propDef === 'object' && propDef.required) res.required = true;
-  if (typeof propDef === 'object' && propDef.default !== undefined)
+  if (
+    !options?.skipRequiredOptions &&
+    typeof propDef === 'object' &&
+    propDef.required
+  ) {
+    res.required = true;
+  }
+  if (
+    !options?.skipDefaultValues &&
+    typeof propDef === 'object' &&
+    propDef.default !== undefined
+  ) {
     res.default = propDef.default;
+  }
   return res;
 }
 

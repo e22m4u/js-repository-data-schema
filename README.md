@@ -37,7 +37,13 @@ rds.setService(DatabaseSchema, dbs);
 Определение:
 
 ```ts
-declare const getDataSchemaByModelName: (modelName: string) => DataSchema;
+interface RepositoryDataSchema {
+  // ...
+  getDataSchemaByModelName: (
+    modelName: string,
+    options?: DataSchemaOptions,
+  ) => DataSchema;
+}
 ```
 
 Пример:
@@ -87,10 +93,14 @@ console.log(schema);
 Определение:
 
 ```ts
-const getDataSchemaByModelClass: <T extends object>(
-  modelClass: Constructor<T>,
-  projectionScope?: ProjectionScope,
-) => DataSchema
+describe interface RepositoryDataSchema {
+  // ...
+  getDataSchemaByModelClass: <T extends object>(
+    modelClass: Constructor<T>,
+    projectionScope?: ProjectionScope,
+    options?: DataSchemaOptions,
+  ) => DataSchema
+}
 ```
 
 Базовый пример:
@@ -196,6 +206,17 @@ console.log(outputSchema);
 //     },
 //   },
 // },
+```
+
+### DataSchemaOptions
+
+Сигнатура объекта настроек схемы (используется в некоторых методах).
+
+```ts
+describe type DataSchemaOptions = {
+  skipDefaultValues?: boolean;   // исключить значения по умолчанию
+  skipRequiredOptions?: boolean; // исключить опцию "required"
+};
 ```
 
 ## Тесты

@@ -11,25 +11,27 @@ export class RepositoryDataSchema extends Service {
      * Get data schema by model name.
      *
      * @param modelName
+     * @param options
      */
-    getDataSchemaByModelName(modelName) {
+    getDataSchemaByModelName(modelName, options) {
         const hasDbSchema = this.hasService(DatabaseSchema);
         if (!hasDbSchema)
             throw new Errorf('A DatabaseSchema instance must be registered ' +
                 'in the RepositoryDataSchema service.');
-        return getDataSchemaByModelName(this.getService(DatabaseSchema), modelName);
+        return getDataSchemaByModelName(this.getService(DatabaseSchema), modelName, options);
     }
     /**
      * Get data schema by model class.
      *
      * @param modelClass
      * @param projectionScope
+     * @param options
      */
-    getDataSchemaByModelClass(modelClass, projectionScope) {
+    getDataSchemaByModelClass(modelClass, projectionScope, options) {
         const hasDbSchema = this.hasService(DatabaseSchema);
         if (!hasDbSchema)
             throw new Errorf('A DatabaseSchema instance must be registered ' +
                 'in the RepositoryDataSchema service.');
-        return getDataSchemaByModelClass(this.getService(DatabaseSchema), modelClass, projectionScope);
+        return getDataSchemaByModelClass(this.getService(DatabaseSchema), modelClass, projectionScope, options);
     }
 }
