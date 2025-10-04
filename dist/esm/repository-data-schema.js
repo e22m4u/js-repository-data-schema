@@ -1,4 +1,3 @@
-import { Errorf } from '@e22m4u/js-format';
 import { Service } from '@e22m4u/js-service';
 import { DatabaseSchema } from '@e22m4u/js-repository';
 import { getDataSchemaByModelName } from './get-data-schema-by-model-name.js';
@@ -14,11 +13,7 @@ export class RepositoryDataSchema extends Service {
      * @param options
      */
     getDataSchemaByModelName(modelName, options) {
-        const hasDbSchema = this.hasService(DatabaseSchema);
-        if (!hasDbSchema)
-            throw new Errorf('A DatabaseSchema instance must be registered ' +
-                'in the RepositoryDataSchema service.');
-        return getDataSchemaByModelName(this.getService(DatabaseSchema), modelName, options);
+        return getDataSchemaByModelName(this.getRegisteredService(DatabaseSchema), modelName, options);
     }
     /**
      * Get data schema by model class.
@@ -28,10 +23,6 @@ export class RepositoryDataSchema extends Service {
      * @param options
      */
     getDataSchemaByModelClass(modelClass, projectionScope, options) {
-        const hasDbSchema = this.hasService(DatabaseSchema);
-        if (!hasDbSchema)
-            throw new Errorf('A DatabaseSchema instance must be registered ' +
-                'in the RepositoryDataSchema service.');
-        return getDataSchemaByModelClass(this.getService(DatabaseSchema), modelClass, projectionScope, options);
+        return getDataSchemaByModelClass(this.getRegisteredService(DatabaseSchema), modelClass, projectionScope, options);
     }
 }

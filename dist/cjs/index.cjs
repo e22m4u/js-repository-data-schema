@@ -29,9 +29,6 @@ __export(index_exports, {
 });
 module.exports = __toCommonJS(index_exports);
 
-// dist/esm/repository-data-schema.js
-var import_js_format4 = require("@e22m4u/js-format");
-
 // node_modules/@e22m4u/js-service/src/errors/invalid-argument-error.js
 var import_js_format = require("@e22m4u/js-format");
 var _InvalidArgumentError = class _InvalidArgumentError extends import_js_format.Errorf {
@@ -925,10 +922,7 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends Service {
    * @param options
    */
   getDataSchemaByModelName(modelName, options) {
-    const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
-    if (!hasDbSchema)
-      throw new import_js_format4.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
-    return getDataSchemaByModelName(this.getService(import_js_repository4.DatabaseSchema), modelName, options);
+    return getDataSchemaByModelName(this.getRegisteredService(import_js_repository4.DatabaseSchema), modelName, options);
   }
   /**
    * Get data schema by model class.
@@ -938,10 +932,7 @@ var _RepositoryDataSchema = class _RepositoryDataSchema extends Service {
    * @param options
    */
   getDataSchemaByModelClass(modelClass, projectionScope, options) {
-    const hasDbSchema = this.hasService(import_js_repository4.DatabaseSchema);
-    if (!hasDbSchema)
-      throw new import_js_format4.Errorf("A DatabaseSchema instance must be registered in the RepositoryDataSchema service.");
-    return getDataSchemaByModelClass(this.getService(import_js_repository4.DatabaseSchema), modelClass, projectionScope, options);
+    return getDataSchemaByModelClass(this.getRegisteredService(import_js_repository4.DatabaseSchema), modelClass, projectionScope, options);
   }
 };
 __name(_RepositoryDataSchema, "RepositoryDataSchema");
