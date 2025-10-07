@@ -184,6 +184,30 @@ describe('getDataSchemaByModeClass', function () {
     });
   });
 
+  it('should not return empty properties object if no properties specified in model', function () {
+    @model()
+    class MyModel {}
+    const dbs = new DatabaseSchema();
+    dbs.defineModel(getModelDefinitionFromClass(MyModel));
+    const res = getDataSchemaByModelClass(dbs, MyModel);
+    expect(res).to.be.eql({type: DataType.OBJECT});
+  });
+
+  it('should not return empty properties object even if the projection is specified', function () {
+    @model()
+    class MyModel {}
+    const dbs = new DatabaseSchema();
+    dbs.defineModel(getModelDefinitionFromClass(MyModel));
+    const res1 = getDataSchemaByModelClass(dbs, MyModel, ProjectionScope.INPUT);
+    const res2 = getDataSchemaByModelClass(
+      dbs,
+      MyModel,
+      ProjectionScope.OUTPUT,
+    );
+    expect(res1).to.be.eql({type: DataType.OBJECT});
+    expect(res2).to.be.eql({type: DataType.OBJECT});
+  });
+
   describe('options', function () {
     it('skips the schema option "required" when the option "skipRequiredOptions" is true', function () {
       @model()

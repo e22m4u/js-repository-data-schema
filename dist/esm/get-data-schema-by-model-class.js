@@ -12,9 +12,14 @@ export function getDataSchemaByModelClass(dbSchema, modelClass, projectionScope,
     const classMd = ModelReflector.getMetadata(modelClass);
     const modelName = classMd?.name ?? modelClass.name;
     let dataSchema = getDataSchemaByModelName(dbSchema, modelName, options);
-    if (projectionScope) {
+    if (projectionScope &&
+        dataSchema.properties &&
+        Object.keys(dataSchema.properties).length) {
         dataSchema = Object.assign({}, dataSchema);
-        dataSchema.properties = applyProjection(projectionScope, modelClass, dataSchema.properties);
+        const properties = applyProjection(projectionScope, modelClass, dataSchema.properties);
+        if (properties && Object.keys(properties).length) {
+            dataSchema.properties = properties;
+        }
     }
     return dataSchema;
 }

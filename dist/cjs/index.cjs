@@ -907,9 +907,12 @@ function getDataSchemaByModelClass(dbSchema, modelClass, projectionScope, option
   const classMd = import_js_repository_decorators.ModelReflector.getMetadata(modelClass);
   const modelName = (classMd == null ? void 0 : classMd.name) ?? modelClass.name;
   let dataSchema = getDataSchemaByModelName(dbSchema, modelName, options);
-  if (projectionScope) {
+  if (projectionScope && dataSchema.properties && Object.keys(dataSchema.properties).length) {
     dataSchema = Object.assign({}, dataSchema);
-    dataSchema.properties = (0, import_ts_projection.applyProjection)(projectionScope, modelClass, dataSchema.properties);
+    const properties = (0, import_ts_projection.applyProjection)(projectionScope, modelClass, dataSchema.properties);
+    if (properties && Object.keys(properties).length) {
+      dataSchema.properties = properties;
+    }
   }
   return dataSchema;
 }
