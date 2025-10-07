@@ -133,6 +133,13 @@ describe('getDataSchemaByModelName', function () {
     expect(Object.keys(res.properties!)).to.be.eql(['bar', 'foo']);
   });
 
+  it('should not return empty properties object if no properties specified in model', function () {
+    const dbs = new DatabaseSchema();
+    dbs.defineModel({name: 'myModel'});
+    const res = getDataSchemaByModelName(dbs, 'myModel');
+    expect(res).to.be.eql({type: DataType.OBJECT});
+  });
+
   describe('options', function () {
     it('skips the schema option "required" when the option "skipRequiredOptions" is true', function () {
       const dbs = new DatabaseSchema();

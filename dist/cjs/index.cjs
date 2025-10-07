@@ -770,10 +770,12 @@ var import_js_repository = require("@e22m4u/js-repository");
 var import_js_repository2 = require("@e22m4u/js-repository");
 var import_js_repository3 = require("@e22m4u/js-repository");
 function getDataSchemaByModelName(dbSchema, modelName, options) {
-  return {
-    type: import_ts_data_schema.DataType.OBJECT,
-    properties: getDataSchemaPropertiesByModelName(dbSchema, modelName, options)
-  };
+  const dataSchema = { type: import_ts_data_schema.DataType.OBJECT };
+  const properties = getDataSchemaPropertiesByModelName(dbSchema, modelName, options);
+  if (Object.keys(properties).length) {
+    dataSchema.properties = properties;
+  }
+  return dataSchema;
 }
 __name(getDataSchemaByModelName, "getDataSchemaByModelName");
 function getDataSchemaPropertiesByModelName(dbSchema, modelName, options) {

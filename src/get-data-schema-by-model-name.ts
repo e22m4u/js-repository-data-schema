@@ -29,14 +29,16 @@ export function getDataSchemaByModelName(
   modelName: string,
   options?: DataSchemaOptions,
 ): DataSchema {
-  return {
-    type: DataType.OBJECT,
-    properties: getDataSchemaPropertiesByModelName(
-      dbSchema,
-      modelName,
-      options,
-    ),
-  };
+  const dataSchema: DataSchema = {type: DataType.OBJECT};
+  const properties = getDataSchemaPropertiesByModelName(
+    dbSchema,
+    modelName,
+    options,
+  );
+  if (Object.keys(properties).length) {
+    dataSchema.properties = properties;
+  }
+  return dataSchema;
 }
 
 /**

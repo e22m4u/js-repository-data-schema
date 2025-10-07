@@ -9,10 +9,12 @@ import { DataType as RepDataType } from '@e22m4u/js-repository';
  * @param modelName
  */
 export function getDataSchemaByModelName(dbSchema, modelName, options) {
-    return {
-        type: DataType.OBJECT,
-        properties: getDataSchemaPropertiesByModelName(dbSchema, modelName, options),
-    };
+    const dataSchema = { type: DataType.OBJECT };
+    const properties = getDataSchemaPropertiesByModelName(dbSchema, modelName, options);
+    if (Object.keys(properties).length) {
+        dataSchema.properties = properties;
+    }
+    return dataSchema;
 }
 /**
  * Get data schema properties by model name.
