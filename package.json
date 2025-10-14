@@ -1,6 +1,6 @@
 {
   "name": "@e22m4u/js-repository-data-schema",
-  "version": "0.2.12",
+  "version": "0.2.13",
   "description": "Извлечение схемы данных модели из схемы репозиториев",
   "author": "Mikhail Evstropov <e22m4u@yandex.ru>",
   "license": "MIT",
