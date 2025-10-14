@@ -1,4 +1,4 @@
-import { DataType } from '@e22m4u/ts-data-schema';
+import { DataType } from '@e22m4u/js-data-schema';
 import { RelationType } from '@e22m4u/js-repository';
 import { ModelDefinitionUtils } from '@e22m4u/js-repository';
 import { DataType as RepDataType } from '@e22m4u/js-repository';

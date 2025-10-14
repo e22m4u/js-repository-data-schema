@@ -767,12 +767,12 @@ var DebuggableService = _DebuggableService;
 var import_js_repository4 = require("@e22m4u/js-repository");
 
 // dist/esm/get-data-schema-by-model-name.js
-var import_ts_data_schema = require("@e22m4u/ts-data-schema");
+var import_js_data_schema = require("@e22m4u/js-data-schema");
 var import_js_repository = require("@e22m4u/js-repository");
 var import_js_repository2 = require("@e22m4u/js-repository");
 var import_js_repository3 = require("@e22m4u/js-repository");
 function getDataSchemaByModelName(dbSchema, modelName, options) {
-  const dataSchema = { type: import_ts_data_schema.DataType.OBJECT };
+  const dataSchema = { type: import_js_data_schema.DataType.OBJECT };
   const properties = getDataSchemaPropertiesByModelName(dbSchema, modelName, options);
   if (Object.keys(properties).length) {
     dataSchema.properties = properties;
@@ -808,7 +808,7 @@ function getDataSchemaPropertiesByModelName(dbSchema, modelName, options) {
 }
 __name(getDataSchemaPropertiesByModelName, "getDataSchemaPropertiesByModelName");
 function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem = false, options) {
-  const res = { type: import_ts_data_schema.DataType.ANY };
+  const res = { type: import_js_data_schema.DataType.ANY };
   let type;
   if (typeof propDef === "string") {
     type = propDef || import_js_repository3.DataType.ANY;
@@ -819,16 +819,16 @@ function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem =
   }
   switch (type) {
     case import_js_repository3.DataType.STRING:
-      res.type = import_ts_data_schema.DataType.STRING;
+      res.type = import_js_data_schema.DataType.STRING;
       break;
     case import_js_repository3.DataType.NUMBER:
-      res.type = import_ts_data_schema.DataType.NUMBER;
+      res.type = import_js_data_schema.DataType.NUMBER;
       break;
     case import_js_repository3.DataType.BOOLEAN:
-      res.type = import_ts_data_schema.DataType.BOOLEAN;
+      res.type = import_js_data_schema.DataType.BOOLEAN;
       break;
     case import_js_repository3.DataType.OBJECT:
-      res.type = import_ts_data_schema.DataType.OBJECT;
+      res.type = import_js_data_schema.DataType.OBJECT;
       if (typeof propDef === "object") {
         if (!forArrayItem && propDef.model)
           res.properties = getDataSchemaPropertiesByModelName(dbSchema, propDef.model, options);
@@ -837,7 +837,7 @@ function convertPropertyDefinitionToDataSchema(dbSchema, propDef, forArrayItem =
       }
       break;
     case import_js_repository3.DataType.ARRAY:
-      res.type = import_ts_data_schema.DataType.ARRAY;
+      res.type = import_js_data_schema.DataType.ARRAY;
       if (!forArrayItem && typeof propDef === "object" && propDef.itemType)
         res.items = convertPropertyDefinitionToDataSchema(dbSchema, propDef, true, options);
       break;
@@ -856,7 +856,7 @@ function convertRelationDefinitionToDataSchemaProperties(dbSchema, relName, relD
   switch (relDef.type) {
     case import_js_repository.RelationType.BELONGS_TO: {
       const utils = dbSchema.getService(import_js_repository2.ModelDefinitionUtils);
-      let foreignKeyDataType = import_ts_data_schema.DataType.ANY;
+      let foreignKeyDataType = import_js_data_schema.DataType.ANY;
       if ("model" in relDef && relDef.model) {
         const targetModelName = relDef.model;
         const targetPkPropName = utils.getPrimaryKeyAsPropertyName(targetModelName);
@@ -869,16 +869,16 @@ function convertRelationDefinitionToDataSchemaProperties(dbSchema, relName, relD
       }
       if (relDef.polymorphic) {
         if (relDef.discriminator) {
-          res[relDef.discriminator] = { type: import_ts_data_schema.DataType.STRING };
+          res[relDef.discriminator] = { type: import_js_data_schema.DataType.STRING };
         } else {
-          res[`${relName}Type`] = { type: import_ts_data_schema.DataType.STRING };
+          res[`${relName}Type`] = { type: import_js_data_schema.DataType.STRING };
         }
       }
       break;
     }
     case import_js_repository.RelationType.REFERENCES_MANY: {
       const utils = dbSchema.getService(import_js_repository2.ModelDefinitionUtils);
-      let foreignKeyDataType = import_ts_data_schema.DataType.ANY;
+      let foreignKeyDataType = import_js_data_schema.DataType.ANY;
       if ("model" in relDef && relDef.model) {
         const targetModelName = relDef.model;
         const targetPkPropName = utils.getPrimaryKeyAsPropertyName(targetModelName);
@@ -886,12 +886,12 @@ function convertRelationDefinitionToDataSchemaProperties(dbSchema, relName, relD
       }
       if (relDef.foreignKey) {
         res[relDef.foreignKey] = {
-          type: import_ts_data_schema.DataType.ARRAY,
+          type: import_js_data_schema.DataType.ARRAY,
           items: { type: foreignKeyDataType }
         };
       } else {
         res[`${relName}Ids`] = {
-          type: import_ts_data_schema.DataType.ARRAY,
+          type: import_js_data_schema.DataType.ARRAY,
           items: { type: foreignKeyDataType }
         };
       }

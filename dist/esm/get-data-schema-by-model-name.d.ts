@@ -1,4 +1,4 @@
-import { DataSchema } from '@e22m4u/ts-data-schema';
+import { DataSchema } from '@e22m4u/js-data-schema';
 import { DatabaseSchema } from '@e22m4u/js-repository';
 /**
  * Data schema options.

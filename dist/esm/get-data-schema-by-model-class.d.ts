@@ -1,5 +1,5 @@
 import { Constructor } from './types.js';
-import { DataSchema } from '@e22m4u/ts-data-schema';
+import { DataSchema } from '@e22m4u/js-data-schema';
 import { DatabaseSchema } from '@e22m4u/js-repository';
 import { ProjectionScope } from '@e22m4u/ts-projection';
 import { DataSchemaOptions } from './get-data-schema-by-model-name.js';

@@ -1,12 +1,12 @@
-import {DataType} from '@e22m4u/ts-data-schema';
-import {DataSchema} from '@e22m4u/ts-data-schema';
+import {DataType} from '@e22m4u/js-data-schema';
+import {DataSchema} from '@e22m4u/js-data-schema';
 import {RelationType} from '@e22m4u/js-repository';
 import {DatabaseSchema} from '@e22m4u/js-repository';
 import {PropertyDefinition} from '@e22m4u/js-repository';
 import {RelationDefinition} from '@e22m4u/js-repository';
 import {BelongsToDefinition} from '@e22m4u/js-repository';
 import {ModelDefinitionUtils} from '@e22m4u/js-repository';
-import {DataSchemaProperties} from '@e22m4u/ts-data-schema';
+import {DataSchemaProperties} from '@e22m4u/js-data-schema';
 import {DataType as RepDataType} from '@e22m4u/js-repository';
 import {ReferencesManyDefinition} from '@e22m4u/js-repository';
 
